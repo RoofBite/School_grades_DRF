@@ -28,3 +28,11 @@ class ListSchoolStudents(generics.ListAPIView):
         pk = self.kwargs['pk']
         
         return Student.objects.filter(school__id = pk)
+
+class ListSchoolClasses(generics.ListAPIView):
+    serializer_class = SchoolClassSerializer
+    
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        
+        return SchoolClass.objects.filter(school__id = pk)
