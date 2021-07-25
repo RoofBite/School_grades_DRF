@@ -10,4 +10,11 @@ class ListSchool(generics.ListAPIView):
 class DetailSchool(generics.RetrieveAPIView):
     serializer_class = SchoolSerializer
     queryset = School.objects.all()
+
+class ListSchoolTeachers(generics.ListAPIView):
+    serializer_class = TeacherSerializer
     
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        
+        return Teacher.objects.filter(school__id = pk)
