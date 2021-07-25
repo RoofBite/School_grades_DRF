@@ -1,7 +1,29 @@
 from rest_framework import generics
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher
 from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializer, TeacherSerializer
+
+
+@api_view(['GET'])
+
+def get_routes(request):
+
+    routes = [
+    {'GET, HEAD, OPTIONS': '/api/schools'},
+    {'GET, HEAD, OPTIONS': '/api/schools/pk'},
+    {'GET, HEAD, OPTIONS': '/api/schools/pk/teachers'},
+    {'GET, HEAD, OPTIONS': '/api/schools/pk/students'},
+    {'GET, HEAD, OPTIONS': '/api/schools/pk/classes'},
+
+    ]
+
+    return Response(routes)
+
+
+
+
 
 class ListSchool(generics.ListAPIView):
     queryset = School.objects.all()
