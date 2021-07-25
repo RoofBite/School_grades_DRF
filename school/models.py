@@ -21,7 +21,7 @@ class SchoolSubject(models.Model):
 
 class SchoolClass(models.Model):
     name = models.CharField(max_length = 50)
-    supervising_teacher = models.ManyToManyField(Teacher)
+    supervising_teacher = models.OneToOneField(Teacher, null=True, on_delete = models.CASCADE)
     member = models.ForeignKey(Student, on_delete = models.SET_NULL, null=True)
     subject = models.ManyToManyField(SchoolSubject)
 
