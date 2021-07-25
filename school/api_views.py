@@ -4,5 +4,10 @@ from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectS
                          StudentSerializer, TeacherSerializer
 
 class ListSchool(generics.ListAPIView):
-    queryset=School.objects.all()
-    serializer_class=SchoolSerializer
+    queryset = School.objects.all()
+    serializer_class = SchoolSerializer
+
+class DetailSchool(generics.RetrieveAPIView):
+    serializer_class = SchoolSerializer
+    queryset = School.objects.all()
+    
