@@ -16,5 +16,15 @@ class ListSchoolTeachers(generics.ListAPIView):
     
     def get_queryset(self):
         pk = self.kwargs['pk']
+
+        return Teacher.objects.filter(school__id = pk).prefetch_related('school')
+
+#Maybe later will be restricted to see only by teachers 
+
+class ListSchoolStudents(generics.ListAPIView):
+    serializer_class = StudentSerializer
+    
+    def get_queryset(self):
+        pk = self.kwargs['pk']
         
-        return Teacher.objects.filter(school__id = pk)
+        return Student.objects.filter(school__id = pk)
