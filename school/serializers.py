@@ -6,9 +6,10 @@ class SchoolSerializer(serializers.ModelSerializer):
         model=School
         fields= '__all__'
 
-class SchoolClassSerializer(serializers.ModelSerializer):
+class TeacherSerializer(serializers.ModelSerializer):
+    school=SchoolSerializer(many=True)
     class Meta:
-        model=SchoolClass
+        model=Teacher
         fields= '__all__'
 
 
@@ -18,15 +19,21 @@ class SchoolSubjectSerializer(serializers.ModelSerializer):
         fields= '__all__'
 
 
+
+
+class SchoolClassSerializer(serializers.ModelSerializer):
+    supervising_teacher = TeacherSerializer(many=False)
+    school = SchoolSerializer(many=False)
+    subject = SchoolSubjectSerializer(many=True)
+    class Meta:
+        model=SchoolClass
+        fields= '__all__'
+
+
 class StudentSerializer(serializers.ModelSerializer):
+    school_class = SchoolClassSerializer(many=False)
+    school = SchoolSerializer(many=False)
+    subject= SchoolSubjectSerializer(many=True)
     class Meta:
         model=Student
         fields= '__all__'
-
-
-class TeacherSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=Teacher
-        fields= '__all__'
-
-
