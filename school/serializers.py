@@ -3,20 +3,20 @@ from .models import School, SchoolClass, SchoolSubject, Student, Teacher
 
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
-        model=School
-        fields= '__all__'
+        model = School
+        fields = '__all__'
 
 class TeacherSerializer(serializers.ModelSerializer):
     school=SchoolSerializer(many=True)
     class Meta:
-        model=Teacher
-        fields= '__all__'
+        model = Teacher
+        fields = '__all__'
 
 
 class SchoolSubjectSerializer(serializers.ModelSerializer):
     class Meta:
-        model=SchoolSubject
-        fields= '__all__'
+        model = SchoolSubject
+        fields = '__all__'
 
 
 
@@ -26,14 +26,15 @@ class SchoolClassSerializer(serializers.ModelSerializer):
     school = SchoolSerializer(many=False)
     subject = SchoolSubjectSerializer(many=True)
     class Meta:
-        model=SchoolClass
-        fields= '__all__'
+        model = SchoolClass
+        fields = '__all__'
 
 
 class StudentSerializer(serializers.ModelSerializer):
-    school_class = SchoolClassSerializer(many=False)
+    #school_class = SchoolClassSerializer(many=False)
+    school_class = serializers.CharField(source='school_class.name')
     school = SchoolSerializer(many=False)
-    subject= SchoolSubjectSerializer(many=True)
+    subject = SchoolSubjectSerializer(many=True)
     class Meta:
-        model=Student
-        fields= '__all__'
+        model = Student
+        fields= ('first_name', 'last_name', 'user', 'school_class', 'school', 'subject')
