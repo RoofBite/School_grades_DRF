@@ -1,15 +1,27 @@
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, SAFE_METHODS
+from rest_framework import permissions
 from rest_framework.response import Response
-from .models import School, SchoolClass, SchoolSubject, Student, Teacher
-from .permissions import TeacherPermission
+from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializer, TeacherSerializer
 
+class TeacherPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        # Checks if id of school on that route is in id's of schools to which the teacher is asigned 
+        user = User.objects.filter(id = request.user.id).first()
+        pk = request.resolver_match.kwargs.get('pk')
+        obj=Student.objects.filter(school__id = pk)
+        
+        return obj.first().school.id in user.teacher.school.all().values_list('id', flat=True)
+        
+
+        
+
 
 @api_view(['GET'])
-
 def get_routes(request):
 
     routes = [
@@ -40,11 +52,11 @@ class ListSchoolTeachers(generics.ListAPIView):
 
         return Teacher.objects.filter(school__id = pk).prefetch_related('school')
 
-#Maybe later will be restricted to see only by teachers 
-@permission_classes([IsAuthenticated])
-class ListSchoolStudents(generics.ListAPIView):
+#Restricted to see only by teachers assigned to specific school
+
+class ListSchoolStudents(generics.ListAPIView, TeacherPermission):
     serializer_class = StudentSerializer
-    permission_classes = (TeacherPermission,)
+    permission_classes = [TeacherPermission, IsAuthenticated]
     def get_queryset(self):
         pk = self.kwargs['pk']
         
