@@ -13,9 +13,27 @@ class TeacherPermission(permissions.BasePermission):
         # Checks if id of school on that route is in id's of schools to which the teacher is asigned 
         user = User.objects.filter(id = request.user.id).first()
         pk = request.resolver_match.kwargs.get('pk')
-        obj=Student.objects.filter(school__id = pk)
-        
-        return obj.first().school.id in user.teacher.school.all().values_list('id', flat=True)
+        obj = Student.objects.filter(school__id = pk)
+
+        teacher_school_id = False
+
+        try:
+            if user.teacher:
+                teacher_school_id = user.teacher.school.all().values_list('id', flat=True)
+            else:
+                teacher_school_id = False
+        except:
+            print("User is not teacher")
+
+        if not obj.first():
+            student_school_id = False
+        else:
+            student_school_id = obj.first().school.id
+
+        if student_school_id == False or teacher_school_id == False:
+            return False
+        else:
+            return student_school_id in teacher_school_id
         
 
         
@@ -56,7 +74,7 @@ class ListSchoolTeachers(generics.ListAPIView):
 
 class ListSchoolStudents(generics.ListAPIView, TeacherPermission):
     serializer_class = StudentSerializer
-    permission_classes = [TeacherPermission, IsAuthenticated]
+    permission_classes = [IsAuthenticated, TeacherPermission]
     def get_queryset(self):
         pk = self.kwargs['pk']
         
