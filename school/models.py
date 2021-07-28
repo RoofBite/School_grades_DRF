@@ -8,6 +8,15 @@ class School(models.Model):
     def __str__(self):
         return self.name
 
+class PrincipalTeacher(models.Model):
+    first_name = models.CharField(max_length = 50)
+    last_name = models.CharField(max_length = 50)
+    user = OneToOneField(User, on_delete = models.CASCADE)
+    school = OneToOneField('School', on_delete = models.CASCADE)
+
+    def __str__(self):
+        return self.first_name + self.last_name
+
 class Teacher(models.Model):
     first_name = models.CharField(max_length = 50)
     last_name = models.CharField(max_length = 50)
