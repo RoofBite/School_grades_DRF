@@ -11,6 +11,10 @@ from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectS
 class TeacherPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
+        # If user is Admin permission is granted 
+        if request.user.is_staff:
+            print('Is admin')
+            return True
         # Checks if id of school on that route is in id's of schools to which the teacher is asigned 
         user = User.objects.filter(id = request.user.id).first()
         pk = request.resolver_match.kwargs.get('pk')
