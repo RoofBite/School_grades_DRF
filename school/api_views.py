@@ -13,7 +13,7 @@ class TeacherPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         # If user is Admin permission is granted 
         if request.user.is_staff:
-            print('Is admin')
+            
             return True
         # Checks if id of school on that route is in id's of schools to which the teacher is asigned 
         user = User.objects.filter(id = request.user.id).first()
@@ -88,9 +88,11 @@ class ListSchoolStudents(generics.ListCreateAPIView, TeacherPermission):
 
     def get_permissions(self):
         if self.request.method in ['POST']:
-            print('Admin needed')
+            
             return [permissions.IsAdminUser()]
         return [permissions.IsAuthenticated(), TeacherPermission(), permissions.IsAdminUser()]
+
+    
 
 class ListSchoolClasses(generics.ListAPIView):
     serializer_class = SchoolClassSerializer
