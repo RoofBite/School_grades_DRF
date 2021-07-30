@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     class Meta:
         model = School
-        fields = 'id'
+        fields = '__all__'
         
 
 class TeacherSerializer(serializers.ModelSerializer):
@@ -31,29 +31,31 @@ class SchoolSubjectSerializer(serializers.ModelSerializer):
 
 
 class SchoolClassSerializer(serializers.ModelSerializer):
-    supervising_teacher = TeacherSerializer(many=False)
-    school = SchoolSerializer(many=False)
-    subject = SchoolSubjectSerializer(many=True)
+    id = serializers.IntegerField()
+    #supervising_teacher = TeacherSerializer(many=False)
+    #school = SchoolSerializer(many=False)
+    #subject = SchoolSubjectSerializer(many=True)
     class Meta:
         model = SchoolClass
-        fields = '__all__'
+        fields = ('id', 'name')
 
 
 class StudentSerializer(serializers.ModelSerializer):
-    #school_class = SchoolClassSerializer(many=False)
-    school_class = serializers.CharField(source='school_class.name', required=False)
+    #school_class = serializers.CharField(source='school_class.pk', required=False)
+    school_class = SchoolClassSerializer(many=False, required=False)
     school = SchoolSerializer(many=False, required=False)
     subject = SchoolSubjectSerializer(many=True, required=False)
     
     class Meta:
         model = Student
-        fields= ( 'first_name', 'last_name', 'user', 'school_class', 'school', 'subject')
+        fields = ( 'first_name', 'last_name', 'user', 'school_class', 'school', 'subject')
         extra_kwargs = {'user': {'required': False},'school_class': {'required': False},'school': {'required': False},'subject': {'required': False}}
 
     def create(self, data):
+        print('Printttttt', data['school_class'].get('pk') )
         
-        Student.objects.create(user= User.objects.get(pk=data['user'].pk), first_name=data['first_name'], last_name=data['last_name'], school=School.objects.get(id=data['school'].get('id')))
-        return Student.objects.create(**data)
+        return Student.objects.create(user=User.objects.get(pk=data['user'].pk), first_name=data['first_name'], last_name=data['last_name'], school=School.objects.get(id=data['school'].get('id')),
+        school_class=SchoolClass.objects.get(pk=data['school_class'].get('pk')))
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
