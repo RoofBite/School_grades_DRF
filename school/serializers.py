@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import School, SchoolClass, SchoolSubject, Student, Teacher
+from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 
 class SchoolSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
@@ -7,6 +7,13 @@ class SchoolSerializer(serializers.ModelSerializer):
         model = School
         fields = '__all__'
         extra_kwargs = {'name': {'required': False}}
+
+class UserSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    class Meta:
+        model = School
+        fields = 'id'
+        
 
 class TeacherSerializer(serializers.ModelSerializer):
     school=SchoolSerializer(many=True)
@@ -40,12 +47,12 @@ class StudentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Student
-        fields= ('id', 'first_name', 'last_name', 'user', 'school_class', 'school', 'subject')
+        fields= ( 'first_name', 'last_name', 'user', 'school_class', 'school', 'subject')
         extra_kwargs = {'user': {'required': False},'school_class': {'required': False},'school': {'required': False},'subject': {'required': False}}
 
     def create(self, data):
-        print('PRINTTTTT', data['first_name'], data['school'].get('id'))
-        Student.objects.create(first_name=data['first_name'], last_name=data['last_name'], school=School.objects.get(id=data['school'].get('id')))
+        
+        Student.objects.create(user= User.objects.get(pk=data['user'].pk), first_name=data['first_name'], last_name=data['last_name'], school=School.objects.get(id=data['school'].get('id')))
         return Student.objects.create(**data)
 
     def to_representation(self, instance):
