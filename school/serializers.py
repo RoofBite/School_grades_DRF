@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
+from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User, PrincipalTeacher
+from rest_framework.fields import CurrentUserDefault
 
 class SchoolSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
@@ -43,22 +44,31 @@ class SchoolClassSerializerForStudentList(serializers.ModelSerializer):
     class Meta:
         model = SchoolClass
         fields = ('id', 'name')
-
+        extra_kwargs = {'name': {'required': False}}
 
 class StudentSerializer(serializers.ModelSerializer):
+    current_user = serializers.HiddenField(
+    default=serializers.CurrentUserDefault()
+)
     school_class = SchoolClassSerializerForStudentList(many=False, required=False)
     school = SchoolSerializer(many=False, required=False)
     subject = SchoolSubjectSerializer(many=True, required=False)
     
     class Meta:
         model = Student
-        fields = ( 'first_name', 'last_name', 'user', 'school_class', 'school', 'subject')
+        fields = ('current_user', 'first_name', 'last_name', 'user', 'school_class', 'school', 'subject')
         extra_kwargs = {'user': {'required': False},'school_class': {'required': False},'school': {'required': False},'subject': {'required': False}}
 
     def create(self, data):
         
-        return Student.objects.create(user=User.objects.get(pk=data['user'].pk), first_name=data['first_name'], last_name=data['last_name'], school=School.objects.get(id=data['school'].get('id')),
-        school_class=SchoolClass.objects.get(pk=data['school_class'].get('pk')))
+        if self.context['request'].user.is_staff:
+            school_field = School.objects.get(id=data['school'].get('id'))
+        else: 
+            school_field = PrincipalTeacher.objects.filter(id=self.context['request'].user.id).first().school
+        
+        
+        return Student.objects.create(user=User.objects.get(pk=data['user'].pk), first_name=data['first_name'], last_name=data['last_name'], school=school_field,
+        school_class=SchoolClass.objects.get(pk=data['school_class'].get('id')))
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
