@@ -61,10 +61,12 @@ class StudentSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         
+        print('PRInttt',self.context['request'].user.id,'pricipal ',PrincipalTeacher.objects.filter(user__id=self.context['request'].user.id))
+
         if self.context['request'].user.is_staff:
             school_field = School.objects.get(id=data['school'].get('id'))
         else: 
-            school_field = PrincipalTeacher.objects.filter(id=self.context['request'].user.id).first().school
+            school_field = PrincipalTeacher.objects.filter(user__id=self.context['request'].user.id).first().school
         
         
         return Student.objects.create(user=User.objects.get(pk=data['user'].pk), first_name=data['first_name'], last_name=data['last_name'], school=school_field,
