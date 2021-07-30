@@ -28,21 +28,25 @@ class SchoolSubjectSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {'name': {'required': False}}
 
-
-
 class SchoolClassSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
-    #supervising_teacher = TeacherSerializer(many=False)
-    #school = SchoolSerializer(many=False)
-    #subject = SchoolSubjectSerializer(many=True)
+    supervising_teacher = TeacherSerializer(many=False)
+    school = SchoolSerializer(many=False)
+    subject = SchoolSubjectSerializer(many=True)
+    class Meta:
+        model = SchoolClass
+        fields = ('id', 'name')
+
+class SchoolClassSerializerForStudentList(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
     class Meta:
         model = SchoolClass
         fields = ('id', 'name')
 
 
 class StudentSerializer(serializers.ModelSerializer):
-    #school_class = serializers.CharField(source='school_class.pk', required=False)
-    school_class = SchoolClassSerializer(many=False, required=False)
+    school_class = SchoolClassSerializerForStudentList(many=False, required=False)
     school = SchoolSerializer(many=False, required=False)
     subject = SchoolSubjectSerializer(many=True, required=False)
     
@@ -52,7 +56,6 @@ class StudentSerializer(serializers.ModelSerializer):
         extra_kwargs = {'user': {'required': False},'school_class': {'required': False},'school': {'required': False},'subject': {'required': False}}
 
     def create(self, data):
-        print('Printttttt', data['school_class'].get('pk') )
         
         return Student.objects.create(user=User.objects.get(pk=data['user'].pk), first_name=data['first_name'], last_name=data['last_name'], school=School.objects.get(id=data['school'].get('id')),
         school_class=SchoolClass.objects.get(pk=data['school_class'].get('pk')))
