@@ -39,7 +39,7 @@ class TeacherSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TeacherSerializerForList(serializers.ModelSerializer):
-    #school=SchoolSerializer(many=True)
+    supervising_teacher = serializers.CharField(source='schoolclass')
     class Meta:
         model = Teacher
         fields = '__all__'
@@ -89,9 +89,4 @@ class StudentSerializer(serializers.ModelSerializer):
         return Student.objects.create(user=User.objects.get(pk=data['user'].pk), first_name=data['first_name'], last_name=data['last_name'], school=school_field,
         school_class=SchoolClass.objects.get(pk=data['school_class'].get('id')))
     
-    '''
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['school'] = SchoolSerializerForStudentList(instance.school).data
-        return response
-    '''
+    

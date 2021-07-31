@@ -107,7 +107,7 @@ class ListSchoolTeachers(generics.ListAPIView):
 
         return Teacher.objects.filter(school__id = pk).prefetch_related('school')
 
-#Restricted to see only by teachers assigned to specific school
+#Restricted to see only by Admin, teachers assigned to specific school and pricipal of school
 
 class ListSchoolStudents(generics.ListCreateAPIView, TeacherPermission):
     serializer_class = StudentSerializer
