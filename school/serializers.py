@@ -31,6 +31,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = School
         fields = '__all__'
         
+class TeacherSerializerForClassList(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Teacher
+        fields = ('first_name', 'last_name', )
 
 class TeacherSerializer(serializers.ModelSerializer):
     school=SchoolSerializer(many=True)
@@ -38,13 +43,25 @@ class TeacherSerializer(serializers.ModelSerializer):
         model = Teacher
         fields = '__all__'
 
-class TeacherSerializerForList(serializers.ModelSerializer):
+class TeacherSerializerForTeachersList(serializers.ModelSerializer):
     supervising_teacher = serializers.CharField(source='schoolclass')
     class Meta:
         model = Teacher
         fields = '__all__'
 
+
+
+
 class SchoolSubjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolSubject
+        fields = '__all__'
+        extra_kwargs = {'name': {'required': False}}
+
+
+class SchoolSubjectSerializerForClassList(serializers.ModelSerializer):
+    teacher = TeacherSerializerForClassList("schoolclass", read_only=True, many=True)
+    
     class Meta:
         model = SchoolSubject
         fields = '__all__'
@@ -57,7 +74,16 @@ class SchoolClassSerializer(serializers.ModelSerializer):
     subject = SchoolSubjectSerializer(many=True)
     class Meta:
         model = SchoolClass
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'supervising_teacher', 'school', 'subject')
+
+class SchoolClassSerializerForList(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    supervising_teacher = TeacherSerializerForClassList(many=False)
+    
+    subject = SchoolSubjectSerializerForClassList(many=True)
+    class Meta:
+        model = SchoolClass
+        fields = ('id', 'name', 'supervising_teacher', 'subject')
 
 class SchoolClassSerializerForStudentList(serializers.ModelSerializer):
     id = serializers.IntegerField()
@@ -66,6 +92,8 @@ class SchoolClassSerializerForStudentList(serializers.ModelSerializer):
         model = SchoolClass
         fields = ('id', 'name')
         extra_kwargs = {'name': {'required': False}}
+
+
 
 class StudentSerializer(serializers.ModelSerializer):
     current_user = serializers.HiddenField(
