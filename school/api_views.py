@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.response import Response
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
-                         StudentSerializer, TeacherSerializer
+                         StudentSerializer, TeacherSerializer, TeacherSerializerForList
 
 class TeacherPermission(permissions.BasePermission):
 
@@ -100,7 +100,7 @@ class DetailSchool(generics.RetrieveAPIView):
 
 
 class ListSchoolTeachers(generics.ListAPIView):
-    serializer_class = TeacherSerializer
+    serializer_class = TeacherSerializerForList
     
     def get_queryset(self):
         pk = self.kwargs['pk']
