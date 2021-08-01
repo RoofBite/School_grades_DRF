@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework import response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, SAFE_METHODS, AllowAny
 from rest_framework import permissions
@@ -6,7 +7,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.response import Response
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
-                         StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, SchoolClassSerializerForList
+                         StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, \
+                         SchoolClassSerializerForList, StudentSerializerAddGrades
 from .permissions import TeacherPermission, PrincipalPermission
 
         
@@ -46,7 +48,7 @@ class ListSchoolTeachers(generics.ListAPIView):
 
 #Restricted to see only by Admin, teachers assigned to specific school and pricipal of school
 
-class ListSchoolStudents(generics.ListCreateAPIView, TeacherPermission):
+class ListSchoolStudents(generics.ListCreateAPIView):
     serializer_class = StudentSerializerForList
 
     @property
@@ -63,7 +65,15 @@ class ListSchoolStudents(generics.ListCreateAPIView, TeacherPermission):
         return Student.objects.filter(school__id = pk).select_related('school','school_class').prefetch_related('subject')
 
 
-#class StudentDetail(generics.ListCreateAPIView, TeacherPermission):
+class StudentAddGrades(generics.RetrieveUpdateAPIView):
+    serializer_class = StudentSerializerAddGrades
+    lookup_field= ('pk1','pk2', 'pk3')
+
+    def get_object(self):
+        pk1 = self.kwargs['pk1']
+        pk2 = self.kwargs['pk2']
+        pk3 = self.kwargs['pk3']
+        return Student.objects.get(school__id = pk1, subject__id=pk2, user__id=pk3)
 
 class ListSchoolClasses(generics.ListAPIView):
     serializer_class = SchoolClassSerializerForList

@@ -93,7 +93,16 @@ class SchoolClassSerializerForStudentList(serializers.ModelSerializer):
         fields = ('id', 'name')
         extra_kwargs = {'name': {'required': False}}
 
+class StudentSerializerAddGrades(serializers.ModelSerializer):
+    current_user = serializers.HiddenField(
+                                           default = serializers.CurrentUserDefault()
+    )
+    school_class = SchoolClassSerializerForStudentList(many=False, required=False)
 
+    class Meta:
+        model = Student
+        fields = ('current_user', 'first_name', 'last_name', 'user','subject', 'school_class')
+        
 
 class StudentSerializerForList(serializers.ModelSerializer):
     current_user = serializers.HiddenField(
