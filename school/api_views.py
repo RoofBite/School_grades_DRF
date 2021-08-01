@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.response import Response
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
-                         StudentSerializer, TeacherSerializer, TeacherSerializerForTeachersList, SchoolClassSerializerForList
+                         StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, SchoolClassSerializerForList
 
 class TeacherPermission(permissions.BasePermission):
 
@@ -110,7 +110,7 @@ class ListSchoolTeachers(generics.ListAPIView):
 #Restricted to see only by Admin, teachers assigned to specific school and pricipal of school
 
 class ListSchoolStudents(generics.ListCreateAPIView, TeacherPermission):
-    serializer_class = StudentSerializer
+    serializer_class = StudentSerializerForList
     #permission_classes = [IsAuthenticated & TeacherPermission]
     
     def get_queryset(self):

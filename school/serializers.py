@@ -47,7 +47,7 @@ class TeacherSerializerForTeachersList(serializers.ModelSerializer):
     supervising_teacher = serializers.CharField(source='schoolclass')
     class Meta:
         model = Teacher
-        fields = '__all__'
+        exclude = ('school', )
 
 
 
@@ -64,7 +64,7 @@ class SchoolSubjectSerializerForClassList(serializers.ModelSerializer):
     
     class Meta:
         model = SchoolSubject
-        fields = '__all__'
+        exclude = ('school',)
         extra_kwargs = {'name': {'required': False}}
 
 class SchoolClassSerializer(serializers.ModelSerializer):
@@ -95,17 +95,17 @@ class SchoolClassSerializerForStudentList(serializers.ModelSerializer):
 
 
 
-class StudentSerializer(serializers.ModelSerializer):
+class StudentSerializerForList(serializers.ModelSerializer):
     current_user = serializers.HiddenField(
                                            default = serializers.CurrentUserDefault()
     )
     school_class = SchoolClassSerializerForStudentList(many=False, required=False)
-    school = SchoolSerializerForStudentList(many=False, required=False)
-    subject = SchoolSubjectSerializer(many=True, required=False)
+    #school = SchoolSerializerForStudentList(many=False, required=False)
+    #subject = SchoolSubjectSerializer(many=True, required=False)
     
     class Meta:
         model = Student
-        fields = ('current_user', 'first_name', 'last_name', 'user', 'school_class', 'school', 'subject')
+        fields = ('current_user', 'first_name', 'last_name', 'user', 'school_class', )
         extra_kwargs = {'user': {'required': False},'school_class': {'required': False},'school': {'required': False},'subject': {'required': False}}
 
     def create(self, data):
