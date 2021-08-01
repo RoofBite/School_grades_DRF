@@ -100,8 +100,7 @@ class StudentSerializerForList(serializers.ModelSerializer):
                                            default = serializers.CurrentUserDefault()
     )
     school_class = SchoolClassSerializerForStudentList(many=False, required=False)
-    #school = SchoolSerializerForStudentList(many=False, required=False)
-    #subject = SchoolSubjectSerializer(many=True, required=False)
+    
     
     class Meta:
         model = Student

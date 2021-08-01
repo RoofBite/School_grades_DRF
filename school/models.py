@@ -49,7 +49,7 @@ class Student(models.Model):
     user = OneToOneField(User, on_delete = models.CASCADE, blank = True ,null = True)
     school_class = models.ForeignKey('SchoolClass', on_delete = models.SET_NULL, blank = True, null = True)
     school = models.ForeignKey('School', on_delete = models.SET_NULL, blank = True, null = True)
-    subject = models.ManyToManyField('SchoolSubject', blank = True, null = True)
+    subject = models.ManyToManyField('SchoolSubject')
 
     def __str__(self):
         return self.first_name + self.last_name
