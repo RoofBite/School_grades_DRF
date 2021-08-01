@@ -60,6 +60,7 @@ class ListSchoolStudents(generics.ListCreateAPIView):
         return [IsAdminUser]
     
     def get_queryset(self):
+        self.check_object_permissions()
         pk = self.kwargs['pk']
         
         return Student.objects.filter(school__id = pk).select_related('school','school_class').prefetch_related('subject')
@@ -67,13 +68,13 @@ class ListSchoolStudents(generics.ListCreateAPIView):
 
 class StudentAddGrades(generics.RetrieveUpdateAPIView):
     serializer_class = StudentSerializerAddGrades
-    lookup_field= ('pk1','pk2', 'pk3')
+    lookup_field = ('pk1','pk2')
 
     def get_object(self):
         pk1 = self.kwargs['pk1']
         pk2 = self.kwargs['pk2']
-        pk3 = self.kwargs['pk3']
-        return Student.objects.get(school__id = pk1, subject__id=pk2, user__id=pk3)
+        
+        return Student.objects.get(subject__id=pk1, user__id=pk2)
 
 class ListSchoolClasses(generics.ListAPIView):
     serializer_class = SchoolClassSerializerForList
@@ -81,4 +82,4 @@ class ListSchoolClasses(generics.ListAPIView):
     def get_queryset(self):
         pk = self.kwargs['pk']
         
-        return SchoolClass.objects.filter(school__id = pk).select_related('supervising_teacher').prefetch_related('subject')
+        return SchoolClass.objects.filter(school__id=pk).select_related('supervising_teacher').prefetch_related('subject')

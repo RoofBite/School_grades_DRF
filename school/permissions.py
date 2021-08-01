@@ -2,6 +2,8 @@ from rest_framework import permissions
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 
 
+
+
 class TeacherPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
@@ -36,7 +38,7 @@ class TeacherPermission(permissions.BasePermission):
             return student_school_id in teacher_school_id
         
 class PrincipalPermission(permissions.BasePermission):
-
+    
     def has_permission(self, request, view):
         # If user is Admin permission is granted 
         if request.user.is_staff:

@@ -11,7 +11,7 @@ urlpatterns= [
     path('schools/<int:pk>/teachers/', ListSchoolTeachers.as_view()),
     path('schools/<int:pk>/students/', ListSchoolStudents.as_view()),
     path('schools/<int:pk>/classes/', ListSchoolClasses.as_view()), 
-    path('schools/<int:pk1>/subjects/<int:pk2>/students/<int:pk3>/', StudentAddGrades.as_view()),
+    path('subjects/<int:pk1>/students/<int:pk2>/', StudentAddGrades.as_view()),
     
     
 ]

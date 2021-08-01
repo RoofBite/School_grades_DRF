@@ -28,7 +28,7 @@ class Teacher(models.Model):
 
 class SchoolSubject(models.Model):
     name = models.CharField(max_length = 50, blank = True, null = True)
-    teacher = models.ManyToManyField('Teacher')
+    teacher = models.ForeignKey(User, on_delete = models.CASCADE, blank = True ,null = True)
     school = models.ForeignKey('School', on_delete = models.CASCADE, null=True)
 
     def __str__(self):
