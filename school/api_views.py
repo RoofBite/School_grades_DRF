@@ -8,7 +8,7 @@ from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, SchoolClassSerializerForList
 from .permissions import TeacherPermission, PrincipalPermission
-   
+
         
 
 
@@ -48,19 +48,20 @@ class ListSchoolTeachers(generics.ListAPIView):
 
 class ListSchoolStudents(generics.ListCreateAPIView, TeacherPermission):
     serializer_class = StudentSerializerForList
-    permission_classes = [IsAuthenticated & TeacherPermission]
+
+    @property
+    def permission_classes(self):
+        if self.request.method in ['POST']:
+            return [PrincipalPermission]
+        elif self.request.method in ['GET']:
+            return [IsAuthenticated, TeacherPermission | PrincipalPermission]
+        return [IsAdminUser]
     
     def get_queryset(self):
         pk = self.kwargs['pk']
         
         return Student.objects.filter(school__id = pk).select_related('school','school_class').prefetch_related('subject')
 
-    def get_permissions(self):
-        if self.request.method in ['POST']:
-            
-            return [PrincipalPermission()]
-        #return [AllowAny()]
-        return [permissions.IsAuthenticated(), TeacherPermission()]
 
 #class StudentDetail(generics.ListCreateAPIView, TeacherPermission):
 
