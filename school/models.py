@@ -1,12 +1,27 @@
-from django.db import models
 from django.db.models.fields.related import OneToOneField
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+
 
 class School(models.Model):
     name = models.CharField(max_length = 100,  null = True, blank = True)
 
     def __str__(self):
         return self.name
+
+class Grade(models.Model):
+    value = models.IntegerField(
+        default=0,
+        validators=[
+            MaxValueValidator(5),
+            MinValueValidator(0)
+        ])
+    subject = models.ForeignKey('SchoolSubject', on_delete = models.SET_NULL, blank = True, null = True)
+    student = models.ForeignKey('Student', on_delete = models.SET_NULL, blank = True, null = True)
+
+    def __str__(self):
+        return str(self.value) + ' for ' +  str(self.student) + ' ' + str(self.subject.name) + ':' + str(self.subject.teacher)
 
 class PrincipalTeacher(models.Model):
     first_name = models.CharField(max_length = 50)
