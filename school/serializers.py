@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User, PrincipalTeacher
+from .models import School, SchoolClass, SchoolSubject, Student, \
+                    Teacher, User, PrincipalTeacher, Grade
 from rest_framework.fields import CurrentUserDefault
+
+class GradeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Grade
+        fields = ('value',)
 
 
 class PrincipalTeacherSerializer:
@@ -105,11 +112,16 @@ class StudentSerializerAddGrades(serializers.ModelSerializer):
                                            default = serializers.CurrentUserDefault()
     )
     school_class = SchoolClassSerializerForStudentList(many=False, required=False)
-
+    grades = serializers.SerializerMethodField()
+    #grades = GradeSerializer(source='grade_set', many=True)
     class Meta:
         model = Student
-        fields = ('current_user', 'first_name', 'last_name', 'user','subject', 'school_class')
+        fields = ('current_user', 'first_name', 'last_name', 'user', 'school_class', 'grades')
         
+    def get_grades(self, obj):
+        pk1 = self.context['request'].resolver_match.kwargs.get('pk1')
+        query = Grade.objects.filter(subject__id=pk1)
+        return GradeSerializer(query, many=True).data
 
 class StudentSerializerForList(serializers.ModelSerializer):
     current_user = serializers.HiddenField(
