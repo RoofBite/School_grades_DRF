@@ -2,7 +2,22 @@ from rest_framework import permissions
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 
 
+class SubjectTeacherPermission(permissions.BasePermission):
+    
+    def has_permission(self, request, view):
+        # If user is Admin permission is granted 
+        if request.user.is_staff:
+            return True
+        pk = request.resolver_match.kwargs.get('pk')
 
+        try:
+            if Teacher.objects.get(user__id=request.user.id, schoolsubject__id=pk):
+                print(Teacher.objects.get(user__id=request.user.id, schoolsubject__id=pk))
+                return True
+            else:
+                return False
+        except:
+            print("User is not subject teacher")
 
 class TeacherPermission(permissions.BasePermission):
 

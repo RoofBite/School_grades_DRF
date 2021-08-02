@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, \
-                         SchoolClassSerializerForList, StudentSerializerAddGrades
-from .permissions import TeacherPermission, PrincipalPermission
+                         SchoolClassSerializerForList, StudentSerializerAddGrades, StudentsInSubjectSerializerForList
+from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherPermission
 
         
 
@@ -65,6 +65,13 @@ class ListSchoolStudents(generics.ListCreateAPIView):
         
         return Student.objects.filter(school__id = pk).select_related('school','school_class').prefetch_related('subject')
 
+class ListSubjectStudents(generics.ListAPIView):
+    serializer_class = StudentsInSubjectSerializerForList
+    permission_classes = [SubjectTeacherPermission]
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        
+        return Student.objects.filter(subject__id=pk)
 
 class StudentAddGrades(generics.RetrieveUpdateAPIView):
     serializer_class = StudentSerializerAddGrades
