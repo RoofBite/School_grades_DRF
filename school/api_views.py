@@ -67,11 +67,11 @@ class ListSchoolStudents(generics.ListCreateAPIView):
 
 class ListSubjectStudents(generics.ListAPIView):
     serializer_class = StudentsInSubjectSerializerForList
-    permission_classes = [SubjectTeacherPermission]
+    permission_classes = [SubjectTeacherPermission | AllowAny]
     def get_queryset(self):
         pk = self.kwargs['pk']
         
-        return Student.objects.filter(subject__id=pk)
+        return Student.objects.filter(subject__id=pk).select_related('school','school_class')
 
 class StudentAddGrades(generics.RetrieveUpdateAPIView):
     serializer_class = StudentSerializerAddGrades
