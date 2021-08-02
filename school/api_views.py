@@ -9,7 +9,8 @@ from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, \
                          SchoolClassSerializerForList, StudentSerializerAddGrades, StudentsInSubjectSerializerForList
-from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherPermission
+from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherPermission, \
+                         SubjectTeacherAddGradesPermission
 
         
 
@@ -67,7 +68,8 @@ class ListSchoolStudents(generics.ListCreateAPIView):
 
 class ListSubjectStudents(generics.ListAPIView):
     serializer_class = StudentsInSubjectSerializerForList
-    permission_classes = [SubjectTeacherPermission | AllowAny]
+    permission_classes = [SubjectTeacherPermission]
+    lookup_field = 'pk'
     def get_queryset(self):
         pk = self.kwargs['pk']
         
@@ -75,6 +77,7 @@ class ListSubjectStudents(generics.ListAPIView):
 
 class StudentAddGrades(generics.RetrieveUpdateAPIView):
     serializer_class = StudentSerializerAddGrades
+    permission_classes = [SubjectTeacherAddGradesPermission]
     lookup_field = ('pk1','pk2')
 
     def get_object(self):

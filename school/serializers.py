@@ -95,10 +95,10 @@ class SchoolClassSerializerForStudentList(serializers.ModelSerializer):
 
 class StudentsInSubjectSerializerForList(serializers.ModelSerializer):
     school_class = SchoolClassSerializerForStudentList(many=False, required=False)
-
+    
     class Meta:
         model = Student
-        fields = ( 'first_name', 'last_name', 'user', 'school_class')
+        fields = ( 'first_name', 'last_name', 'user', 'school_class',)
 
 class StudentSerializerAddGrades(serializers.ModelSerializer):
     current_user = serializers.HiddenField(

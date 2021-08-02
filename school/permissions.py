@@ -19,6 +19,12 @@ class SubjectTeacherPermission(permissions.BasePermission):
         except:
             print("User is not subject teacher")
 
+class SubjectTeacherAddGradesPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.subject__teacher__user__id == request.user.id
+    
+
+
 class TeacherPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
