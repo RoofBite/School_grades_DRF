@@ -20,18 +20,24 @@ class SubjectTeacherPermission(permissions.BasePermission):
 
 class StudentGradesPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        print('permision request.user.id', request.user.id)
+        
         if request.method=='GET':
             pk2 = request.resolver_match.kwargs.get('pk2')
-            print(pk2)
             return pk2== request.user.id
 
 class SubjectTeacherGradesPermission(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        print('permision SubjectTeacherGradesPermission')
-        return obj.subject__teacher__user__id == request.user.id
-    
-
+    def has_permission(self, request, view):
+        
+        pk1 = request.resolver_match.kwargs.get('pk1')
+        pk2 = request.resolver_match.kwargs.get('pk2')
+        obj = Student.objects.get(subject__id=pk1, user__id=pk2)
+        
+        try:
+            if Student.objects.get(subject__id=pk1, user__id=pk2, subject__teacher__user__id=request.user.id):
+                return True
+        except:
+            return False
+            
 
 class TeacherPermission(permissions.BasePermission):
 

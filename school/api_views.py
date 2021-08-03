@@ -82,20 +82,22 @@ class StudentGrades(generics.RetrieveUpdateAPIView):
     serializer_class = StudentSerializerGrades
     lookup_field = ('pk1','pk2')
 
-    def get_object(self):
-        pk1 = self.kwargs['pk1']
-        pk2 = self.kwargs['pk2']
-        
-        return Student.objects.get(subject__id=pk1, user__id=pk2)
+    
     
     @property
     def permission_classes(self):
         if self.request.method in ['POST']:
             return [SubjectTeacherGradesPermission]
         elif self.request.method in ['GET']:
-            return [IsAuthenticated, StudentGradesPermission ]
+            return [SubjectTeacherGradesPermission]
         return [IsAdminUser]
 
+    def get_object(self):
+        pk1 = self.kwargs['pk1']
+        pk2 = self.kwargs['pk2']
+        
+        return Student.objects.get(subject__id=pk1, user__id=pk2)
+        
 class ListSchoolClasses(generics.ListAPIView):
     serializer_class = SchoolClassSerializerForList
     

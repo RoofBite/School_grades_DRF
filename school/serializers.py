@@ -3,11 +3,7 @@ from .models import School, SchoolClass, SchoolSubject, Student, \
                     Teacher, User, PrincipalTeacher, Grade
 from rest_framework.fields import CurrentUserDefault
 
-class GradeSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = Grade
-        fields = ('value',)
 
 
 class PrincipalTeacherSerializer:
@@ -66,6 +62,12 @@ class SchoolSubjectSerializer(serializers.ModelSerializer):
         extra_kwargs = {'name': {'required': False}}
 
 
+class GradeSerializer(serializers.ModelSerializer):
+    subject = SchoolSubjectSerializer(many=False)
+    class Meta:
+        model = Grade
+        fields = ('value','subject')
+
 class SchoolSubjectSerializerForClassList(serializers.ModelSerializer):
     teacher = TeacherSerializerForClassList("schoolclass", read_only=True, many=True)
     
@@ -113,14 +115,15 @@ class StudentSerializerGrades(serializers.ModelSerializer):
     )
     school_class = SchoolClassSerializerForStudentList(many=False, required=False)
     grades = serializers.SerializerMethodField()
-    #grades = GradeSerializer(source='grade_set', many=True)
+    
     class Meta:
         model = Student
         fields = ('current_user', 'first_name', 'last_name', 'user', 'school_class', 'grades')
         
     def get_grades(self, obj):
         pk1 = self.context['request'].resolver_match.kwargs.get('pk1')
-        query = Grade.objects.filter(subject__id=pk1, student__user__id=self.context['request'].user.id)
+        pk2 = self.context['request'].resolver_match.kwargs.get('pk2')
+        query = Grade.objects.filter(subject__id=pk1, student__user__id=pk2)
         return GradeSerializer(query, many=True).data
 
 class StudentSerializerForList(serializers.ModelSerializer):
