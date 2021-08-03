@@ -19,12 +19,16 @@ from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherP
 def get_routes(request):
 
     routes = [
+    {'POST, OPTIONS':'users/token/'},
+    {'POST, OPTIONS':'users/token/refresh/'},
     {'GET, HEAD, OPTIONS': '/api/schools'},
     {'GET, HEAD, OPTIONS': '/api/schools/pk'},
     {'GET, HEAD, OPTIONS': '/api/schools/pk/teachers'},
-    {'GET, HEAD, OPTIONS': '/api/schools/pk/students'},
+    {'GET, POST, HEAD, OPTIONS': '/api/schools/pk/students'},
     {'GET, HEAD, OPTIONS': '/api/schools/pk/classes'},
-
+    {'GET, HEAD, OPTIONS': '/api/subjects/<int:pk1>/students'},
+    {'GET, PUT, PATCH, HEAD, OPTIONS': '/api/subjects/<int:pk1>/students/<int:pk2>/'}
+    
     ]
 
     return Response(routes)
@@ -55,9 +59,9 @@ class ListSchoolStudents(generics.ListCreateAPIView):
     @property
     def permission_classes(self):
         if self.request.method in ['POST']:
-            return [PrincipalPermission]
+            return [PrincipalPermission ]
         elif self.request.method in ['GET']:
-            return [IsAuthenticated, TeacherPermission | PrincipalPermission]
+            return [IsAuthenticated, TeacherPermission | PrincipalPermission ]
         return [IsAdminUser]
     
     def get_queryset(self):

@@ -2,8 +2,7 @@ from django.db.models.fields.related import OneToOneField
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
-
+ 
 class School(models.Model):
     name = models.CharField(max_length = 100,  null = True, blank = True)
 
