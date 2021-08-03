@@ -12,15 +12,23 @@ class SubjectTeacherPermission(permissions.BasePermission):
 
         try:
             if Teacher.objects.get(user__id=request.user.id, schoolsubject__id=pk):
-                print(Teacher.objects.get(user__id=request.user.id, schoolsubject__id=pk))
                 return True
             else:
                 return False
         except:
             print("User is not subject teacher")
 
-class SubjectTeacherAddGradesPermission(permissions.BasePermission):
+class StudentGradesPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        print('permision request.user.id', request.user.id)
+        if request.method=='GET':
+            pk2 = request.resolver_match.kwargs.get('pk2')
+            print(pk2)
+            return pk2== request.user.id
+
+class SubjectTeacherGradesPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
+        print('permision SubjectTeacherGradesPermission')
         return obj.subject__teacher__user__id == request.user.id
     
 

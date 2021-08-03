@@ -8,9 +8,9 @@ from rest_framework.response import Response
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
 from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, \
-                         SchoolClassSerializerForList, StudentSerializerAddGrades, StudentsInSubjectSerializerForList
+                         SchoolClassSerializerForList, StudentSerializerGrades, StudentsInSubjectSerializerForList
 from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherPermission, \
-                         SubjectTeacherAddGradesPermission
+                         SubjectTeacherGradesPermission, StudentGradesPermission
 
         
 
@@ -19,16 +19,15 @@ from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherP
 def get_routes(request):
 
     routes = [
-    {'POST, OPTIONS':'users/token/'},
-    {'POST, OPTIONS':'users/token/refresh/'},
-    {'GET, HEAD, OPTIONS': '/api/schools'},
-    {'GET, HEAD, OPTIONS': '/api/schools/pk'},
-    {'GET, HEAD, OPTIONS': '/api/schools/pk/teachers'},
-    {'GET, POST, HEAD, OPTIONS': '/api/schools/pk/students'},
-    {'GET, HEAD, OPTIONS': '/api/schools/pk/classes'},
-    {'GET, HEAD, OPTIONS': '/api/subjects/<int:pk1>/students'},
-    {'GET, PUT, PATCH, HEAD, OPTIONS': '/api/subjects/<int:pk1>/students/<int:pk2>/'}
-    
+    {'POST, OPTIONS' : 'users/token/'},
+    {'POST, OPTIONS' : 'users/token/refresh/'},
+    {'GET, HEAD, OPTIONS' : '/api/schools'},
+    {'GET, HEAD, OPTIONS' : '/api/schools/pk'},
+    {'GET, HEAD, OPTIONS' : '/api/schools/pk/teachers'},
+    {'GET, POST, HEAD, OPTIONS' : '/api/schools/pk/students'},
+    {'GET, HEAD, OPTIONS' : '/api/schools/pk/classes'},
+    {'GET, HEAD, OPTIONS' : '/api/subjects/<int:pk1>/students'},
+    {'GET, PUT, PATCH, HEAD, OPTIONS' : '/api/subjects/<int:pk1>/students/<int:pk2>/'}
     ]
 
     return Response(routes)
@@ -59,7 +58,7 @@ class ListSchoolStudents(generics.ListCreateAPIView):
     @property
     def permission_classes(self):
         if self.request.method in ['POST']:
-            return [PrincipalPermission ]
+            return [PrincipalPermission]
         elif self.request.method in ['GET']:
             return [IsAuthenticated, TeacherPermission | PrincipalPermission ]
         return [IsAdminUser]
@@ -79,9 +78,8 @@ class ListSubjectStudents(generics.ListAPIView):
         
         return Student.objects.filter(subject__id=pk).select_related('school','school_class')
 
-class StudentAddGrades(generics.RetrieveUpdateAPIView):
-    serializer_class = StudentSerializerAddGrades
-    permission_classes = [SubjectTeacherAddGradesPermission]
+class StudentGrades(generics.RetrieveUpdateAPIView):
+    serializer_class = StudentSerializerGrades
     lookup_field = ('pk1','pk2')
 
     def get_object(self):
@@ -89,6 +87,14 @@ class StudentAddGrades(generics.RetrieveUpdateAPIView):
         pk2 = self.kwargs['pk2']
         
         return Student.objects.get(subject__id=pk1, user__id=pk2)
+    
+    @property
+    def permission_classes(self):
+        if self.request.method in ['POST']:
+            return [SubjectTeacherGradesPermission]
+        elif self.request.method in ['GET']:
+            return [IsAuthenticated, StudentGradesPermission ]
+        return [IsAdminUser]
 
 class ListSchoolClasses(generics.ListAPIView):
     serializer_class = SchoolClassSerializerForList

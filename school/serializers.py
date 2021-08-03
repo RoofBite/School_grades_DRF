@@ -107,7 +107,7 @@ class StudentsInSubjectSerializerForList(serializers.ModelSerializer):
         model = Student
         fields = ( 'first_name', 'last_name', 'user', 'school_class',)
 
-class StudentSerializerAddGrades(serializers.ModelSerializer):
+class StudentSerializerGrades(serializers.ModelSerializer):
     current_user = serializers.HiddenField(
                                            default = serializers.CurrentUserDefault()
     )
@@ -120,7 +120,7 @@ class StudentSerializerAddGrades(serializers.ModelSerializer):
         
     def get_grades(self, obj):
         pk1 = self.context['request'].resolver_match.kwargs.get('pk1')
-        query = Grade.objects.filter(subject__id=pk1)
+        query = Grade.objects.filter(subject__id=pk1, student__user__id=self.context['request'].user.id)
         return GradeSerializer(query, many=True).data
 
 class StudentSerializerForList(serializers.ModelSerializer):
