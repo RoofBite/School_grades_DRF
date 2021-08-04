@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, SAFE_METHOD
 from rest_framework import permissions
 from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.response import Response
-from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
-from .serializers import SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
+from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User, Grade
+from .serializers import GradeSerializer, SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, \
                          SchoolClassSerializerForList, StudentSerializerGrades, StudentsInSubjectSerializerForList
 from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherPermission, \
@@ -77,15 +77,32 @@ class ListSubjectStudents(generics.ListAPIView):
         
         return Student.objects.filter(subject__id=pk).select_related('school','school_class')
 
-class StudentGrades(generics.RetrieveUpdateAPIView):
+class StudentGradesInSubject(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = GradeSerializer
+    lookup_field = ('pk1','pk2','pk3')
+
+    @property
+    def permission_classes(self):
+        if self.request.method in ['POST', "PATCH", "PUT"]:
+            return [SubjectTeacherGradesPermission]
+        elif self.request.method in ['GET']:
+            return [SubjectTeacherGradesPermission | StudentGradesPermission]
+        return [IsAdminUser]
+
+    def get_object(self):
+        pk1 = self.kwargs['pk1']
+        pk2 = self.kwargs['pk2']
+        pk3 = self.kwargs['pk3']
+
+        return Grade.objects.get(id=pk3, subject__id=pk1, student__user__id=pk2)
+
+class StudentInSubjectDetail(generics.RetrieveAPIView):
     serializer_class = StudentSerializerGrades
     lookup_field = ('pk1','pk2')
 
     @property
     def permission_classes(self):
-        if self.request.method in ['POST', "PATCH"]:
-            return [SubjectTeacherGradesPermission]
-        elif self.request.method in ['GET']:
+        if self.request.method in ['GET']:
             return [SubjectTeacherGradesPermission | StudentGradesPermission]
         return [IsAdminUser]
 
@@ -95,21 +112,7 @@ class StudentGrades(generics.RetrieveUpdateAPIView):
         
         return Student.objects.get(subject__id=pk1, user__id=pk2)
     
-    # def update(self, request, *args, **kwargs):
-    #     partial = True 
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance, data=request.data, partial=partial)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_update(serializer)
 
-    #     return Response(serializer.data)
-
-    # def perform_update(self, serializer):
-    #     serializer.save()
-
-    # def partial_update(self, request, *args, **kwargs):
-    #     kwargs['partial'] = True
-    #     return self.update(request, *args, **kwargs)
 
 class ListSchoolClasses(generics.ListAPIView):
     serializer_class = SchoolClassSerializerForList

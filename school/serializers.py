@@ -63,10 +63,11 @@ class SchoolSubjectSerializer(serializers.ModelSerializer):
 
 
 class GradeSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
     subject = SchoolSubjectSerializer(many=False)
     class Meta:
         model = Grade
-        fields = ('value','subject')
+        fields = ('id','value','subject')
 
 class SchoolSubjectSerializerForClassList(serializers.ModelSerializer):
     teacher = TeacherSerializerForClassList("schoolclass", read_only=True, many=True)
@@ -119,7 +120,7 @@ class StudentSerializerGrades(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ('current_user', 'first_name', 'last_name', 'user', 'school_class', 'grades')
-        
+    
     def get_grades(self, obj):
         pk1 = self.context['request'].resolver_match.kwargs.get('pk1')
         pk2 = self.context['request'].resolver_match.kwargs.get('pk2')
@@ -131,7 +132,6 @@ class StudentSerializerForList(serializers.ModelSerializer):
                                            default = serializers.CurrentUserDefault()
     )
     school_class = SchoolClassSerializerForStudentList(many=False, required=False)
-    
     
     class Meta:
         model = Student
