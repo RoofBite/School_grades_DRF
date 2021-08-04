@@ -64,7 +64,6 @@ class ListSchoolStudents(generics.ListCreateAPIView):
         return [IsAdminUser]
     
     def get_queryset(self):
-        self.check_object_permissions()
         pk = self.kwargs['pk']
         
         return Student.objects.filter(school__id = pk).select_related('school','school_class').prefetch_related('subject')
@@ -82,14 +81,12 @@ class StudentGrades(generics.RetrieveUpdateAPIView):
     serializer_class = StudentSerializerGrades
     lookup_field = ('pk1','pk2')
 
-    
-    
     @property
     def permission_classes(self):
-        if self.request.method in ['POST']:
+        if self.request.method in ['POST', "PATCH"]:
             return [SubjectTeacherGradesPermission]
         elif self.request.method in ['GET']:
-            return [SubjectTeacherGradesPermission]
+            return [SubjectTeacherGradesPermission | StudentGradesPermission]
         return [IsAdminUser]
 
     def get_object(self):
@@ -97,7 +94,23 @@ class StudentGrades(generics.RetrieveUpdateAPIView):
         pk2 = self.kwargs['pk2']
         
         return Student.objects.get(subject__id=pk1, user__id=pk2)
-        
+    
+    # def update(self, request, *args, **kwargs):
+    #     partial = True 
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(instance, data=request.data, partial=partial)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_update(serializer)
+
+    #     return Response(serializer.data)
+
+    # def perform_update(self, serializer):
+    #     serializer.save()
+
+    # def partial_update(self, request, *args, **kwargs):
+    #     kwargs['partial'] = True
+    #     return self.update(request, *args, **kwargs)
+
 class ListSchoolClasses(generics.ListAPIView):
     serializer_class = SchoolClassSerializerForList
     
