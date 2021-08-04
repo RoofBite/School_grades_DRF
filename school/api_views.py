@@ -52,8 +52,6 @@ class ListSchoolTeachers(generics.ListAPIView):
 
         return Teacher.objects.filter(school__id = pk).prefetch_related('school').select_related('user','schoolclass')
 
-#Restricted to see only by Admin, teachers assigned to specific school and pricipal of school
-
 class ListSchoolStudents(generics.ListCreateAPIView):
     serializer_class = StudentSerializerForList
 
@@ -99,7 +97,7 @@ class StudentGradesInSubject(CreateModelMixin, generics.RetrieveUpdateDestroyAPI
         pk2 = self.kwargs['pk2']
         pk3 = self.kwargs['pk3']
 
-        return Grade.objects.get(id=pk3, subject__id=pk1, student__user__id=pk2)
+        return Grade.objects.select_related('student').get(id=pk3, subject__id=pk1, student__user__id=pk2)
 
 class StudentInSubjectDetail(generics.RetrieveAPIView):
     serializer_class = StudentSerializerGrades
@@ -108,16 +106,14 @@ class StudentInSubjectDetail(generics.RetrieveAPIView):
     @property
     def permission_classes(self):
         if self.request.method in ['GET']:
-            return [SubjectTeacherGradesPermission | StudentGradesPermission]
+            return [AllowAny | SubjectTeacherGradesPermission | StudentGradesPermission]
         return [IsAdminUser]
 
     def get_object(self):
         pk1 = self.kwargs['pk1']
         pk2 = self.kwargs['pk2']
         
-        return Student.objects.get(subject__id=pk1, user__id=pk2)
-    
-
+        return Student.objects.select_related('school_class').get(subject__id=pk1, user__id=pk2)
 
 class ListSchoolClasses(generics.ListAPIView):
     serializer_class = SchoolClassSerializerForList
