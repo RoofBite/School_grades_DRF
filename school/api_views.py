@@ -28,7 +28,8 @@ def get_routes(request):
     {'GET, POST, HEAD, OPTIONS' : '/api/schools/pk/students'},
     {'GET, HEAD, OPTIONS' : '/api/schools/pk/classes'},
     {'GET, HEAD, OPTIONS' : '/api/subjects/<int:pk1>/students'},
-    {'GET, PUT, PATCH, HEAD, OPTIONS' : '/api/subjects/<int:pk1>/students/<int:pk2>/'}
+    {'GET, PUT, PATCH, HEAD, OPTIONS' : '/api/subjects/<int:pk1>/students/<int:pk2>/'},
+    {'GET, PUT, PATCH, POST, HEAD, OPTIONS':'api/subjects/<int:pk1>/students/<int:pk2>/grades/<int:pk3>/'}
     ]
 
     return Response(routes)
