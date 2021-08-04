@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, SAFE_METHOD
 from rest_framework import permissions
 from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.response import Response
+from rest_framework.mixins import CreateModelMixin
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User, Grade
 from .serializers import GradeSerializer, SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, \
@@ -77,7 +78,7 @@ class ListSubjectStudents(generics.ListAPIView):
         
         return Student.objects.filter(subject__id=pk).select_related('school','school_class')
 
-class StudentGradesInSubject(generics.RetrieveUpdateDestroyAPIView):
+class StudentGradesInSubject(CreateModelMixin, generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GradeSerializer
     lookup_field = ('pk1','pk2','pk3')
 
@@ -89,6 +90,9 @@ class StudentGradesInSubject(generics.RetrieveUpdateDestroyAPIView):
             return [SubjectTeacherGradesPermission | StudentGradesPermission]
         return [IsAdminUser]
 
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+    
     def get_object(self):
         pk1 = self.kwargs['pk1']
         pk2 = self.kwargs['pk2']

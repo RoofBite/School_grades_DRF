@@ -20,6 +20,8 @@ class Grade(models.Model):
     student = models.ForeignKey('Student', on_delete = models.SET_NULL, blank = True, null = True)
 
     def __str__(self):
+        if not (self.subject or self.student):
+            return 'null'
         return str(self.value) + ' for ' +  str(self.student) + ' ' + str(self.subject.name) + ':' + str(self.subject.teacher)
 
 class PrincipalTeacher(models.Model):

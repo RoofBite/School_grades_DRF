@@ -60,19 +60,30 @@ class SchoolSubjectSerializerForGrades(serializers.ModelSerializer):
         extra_kwargs = {'name': {'required': False}}
 
 class SchoolSubjectSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = SchoolSubject
         fields = '__all__'
-        extra_kwargs = {'name': {'required': False}}
+        extra_kwargs = {'name': {'required': False},'id': {'required': False}}
 
 
 class GradeSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
     subject = SchoolSubjectSerializerForGrades(many=False)
     class Meta:
         model = Grade
         fields = ('id','value','subject')
-        extra_kwargs = {'id': {'required': False}}
+        extra_kwargs = {'id': {'required': False}, 'subject': {'required': False}}
+
+    def create(self, validated_data):
+        # Independent of user input saves grade to subject and student which id's are pk1 and pk2
+        value = validated_data.pop('value')
+        subject_id = self.context['request'].resolver_match.kwargs.get('pk1')
+        student_id = self.context['request'].resolver_match.kwargs.get('pk2')
+        subject = SchoolSubject.objects.get(id=subject_id)
+        student = Student.objects.get(user__id=student_id)
+        grade = Grade.objects.create(value=value,subject=subject,student=student)
+
+        return grade
 
 class SchoolSubjectSerializerForClassList(serializers.ModelSerializer):
     teacher = TeacherSerializerForClassList("schoolclass", read_only=True, many=True)
