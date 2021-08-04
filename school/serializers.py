@@ -53,7 +53,11 @@ class TeacherSerializerForTeachersList(serializers.ModelSerializer):
         exclude = ('school', )
 
 
-
+class SchoolSubjectSerializerForGrades(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolSubject
+        fields = ('id','name')
+        extra_kwargs = {'name': {'required': False}}
 
 class SchoolSubjectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -64,10 +68,11 @@ class SchoolSubjectSerializer(serializers.ModelSerializer):
 
 class GradeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
-    subject = SchoolSubjectSerializer(many=False)
+    subject = SchoolSubjectSerializerForGrades(many=False)
     class Meta:
         model = Grade
         fields = ('id','value','subject')
+        extra_kwargs = {'id': {'required': False}}
 
 class SchoolSubjectSerializerForClassList(serializers.ModelSerializer):
     teacher = TeacherSerializerForClassList("schoolclass", read_only=True, many=True)
