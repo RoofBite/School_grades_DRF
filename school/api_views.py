@@ -53,7 +53,7 @@ class PostsPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class SchoolPosts(generics.ListAPIView):
+class SchoolPosts(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     pagination_class = PostsPagination
     search_fields = ['title', 'body','author__last_name']

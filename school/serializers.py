@@ -40,11 +40,23 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PostSerializer(serializers.ModelSerializer):
-    author = UserSerializerForPostList()
+    author = UserSerializerForPostList(required=False)
+
     class Meta:
         model = Post
-        fields =('title', 'body', 'author')
-
+        fields = ('title', 'body', 'author')
+        extra_kwargs = {'author': {'required': False}}
+        read_only_fields = ('author',)
+    
+    def create(self, validated_data):
+        title = validated_data.pop('title')
+        body = validated_data.pop('body')
+        school_id = self.context['request'].resolver_match.kwargs.get('pk')
+        school = School.objects.get(id=school_id)
+        user = User.objects.get(id=self.context['request'].user.id)
+        new_post = Post.objects.create(title=title, body=body, school=school, author=user )
+        
+        return new_post
 class TeacherSerializerForClassList(serializers.ModelSerializer):
     
     class Meta:
