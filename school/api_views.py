@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.response import Response
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.pagination import PageNumberPagination
+from rest_framework import filters
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User, Grade, Post
 from .serializers import GradeSerializer, SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, \
@@ -45,7 +46,7 @@ class DetailSchool(generics.RetrieveAPIView):
     serializer_class = SchoolSerializer
     queryset = School.objects.all().select_related('principalteacher')
 
-
+#Pagintion
 class PostsPagination(PageNumberPagination):
     page_size = 3
     page_size_query_param = 'page_size'
@@ -55,7 +56,8 @@ class PostsPagination(PageNumberPagination):
 class SchoolPosts(generics.ListAPIView):
     serializer_class = PostSerializer
     pagination_class = PostsPagination
-
+    search_fields = ['title', 'body','author__last_name']
+    filter_backends = (filters.SearchFilter,)
     def get_queryset(self):
         pk =self.kwargs['pk']
         return Post.objects.filter(school__id=pk).select_related('author','school')
