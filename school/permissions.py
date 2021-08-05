@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User
+from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User, Post
 
 
 class SubjectTeacherPermission(permissions.BasePermission):

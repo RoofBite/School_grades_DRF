@@ -1,12 +1,16 @@
 from rest_framework import serializers
 from .models import School, SchoolClass, SchoolSubject, Student, \
-                    Teacher, User, PrincipalTeacher, Grade
+                    Teacher, User, PrincipalTeacher, Grade, Post
 from rest_framework.fields import CurrentUserDefault
 
+class PostSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Post
+        fields = '__all__'
 
 
-
-class PrincipalTeacherSerializer:
+class PrincipalTeacherSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrincipalTeacher
         fields = '__all__'
@@ -152,7 +156,8 @@ class StudentSerializerForList(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ('current_user', 'first_name', 'last_name', 'user', 'school_class', )
-        extra_kwargs = {'user': {'required': False},'school_class': {'required': False},'school': {'required': False},'subject': {'required': False}}
+        extra_kwargs = {'user': {'required': False},'school_class': {'required': False},
+                        'school': {'required': False},'subject': {'required': False}}
 
     def create(self, data):
         if self.context['request'].user.is_staff:
@@ -160,7 +165,8 @@ class StudentSerializerForList(serializers.ModelSerializer):
         else: 
             school_field = PrincipalTeacher.objects.filter(user__id=self.context['request'].user.id).first().school
         
-        return Student.objects.create(user=User.objects.get(pk=data['user'].pk), first_name=data['first_name'], last_name=data['last_name'], school=school_field,
-        school_class=SchoolClass.objects.get(pk=data['school_class'].get('id')))
+        return Student.objects.create(user=User.objects.get(pk=data['user'].pk), first_name=data['first_name'],
+                                      last_name=data['last_name'], school=school_field,
+                                      school_class=SchoolClass.objects.get(pk=data['school_class'].get('id')))
     
     

@@ -6,10 +6,12 @@ from rest_framework import permissions
 from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.response import Response
 from rest_framework.mixins import CreateModelMixin
-from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User, Grade
+from rest_framework.pagination import PageNumberPagination
+from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User, Grade, Post
 from .serializers import GradeSerializer, SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, \
-                         SchoolClassSerializerForList, StudentSerializerGrades, StudentsInSubjectSerializerForList
+                         SchoolClassSerializerForList, StudentSerializerGrades, \
+                         StudentsInSubjectSerializerForList, PostSerializer
 from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherPermission, \
                          SubjectTeacherGradesPermission, StudentGradesPermission
 
@@ -43,6 +45,20 @@ class DetailSchool(generics.RetrieveAPIView):
     serializer_class = SchoolSerializer
     queryset = School.objects.all().select_related('principalteacher')
 
+
+class PostsPagination(PageNumberPagination):
+    page_size = 3
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
+class SchoolPosts(generics.ListAPIView):
+    serializer_class = PostSerializer
+    pagination_class = PostsPagination
+
+    def get_queryset(self):
+        pk =self.kwargs['pk']
+        return Post.objects.filter(school__id=pk).select_related('author','school')
 
 class ListSchoolTeachers(generics.ListAPIView):
     serializer_class = TeacherSerializerForTeachersList
@@ -96,8 +112,8 @@ class StudentGradesInSubject(CreateModelMixin, generics.RetrieveUpdateDestroyAPI
         pk1 = self.kwargs['pk1']
         pk2 = self.kwargs['pk2']
         pk3 = self.kwargs['pk3']
-
-        return Grade.objects.select_related('student').get(id=pk3, subject__id=pk1, student__user__id=pk2)
+        
+        return Grade.objects.select_related('student','subject').get(id=pk3, subject__id=pk1, student__user__id=pk2)
 
 class StudentInSubjectDetail(generics.RetrieveAPIView):
     serializer_class = StudentSerializerGrades
@@ -106,7 +122,7 @@ class StudentInSubjectDetail(generics.RetrieveAPIView):
     @property
     def permission_classes(self):
         if self.request.method in ['GET']:
-            return [AllowAny | SubjectTeacherGradesPermission | StudentGradesPermission]
+            return [SubjectTeacherGradesPermission | StudentGradesPermission]
         return [IsAdminUser]
 
     def get_object(self):
