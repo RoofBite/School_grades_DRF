@@ -1,10 +1,18 @@
 from rest_framework import permissions
 from .models import PrincipalTeacher, School, SchoolClass, SchoolSubject, Student, Teacher, User, Post
 
+
+class SchoolPostDetailAuthor(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        return obj.author.id == request.user.id
+
 class SchoolPostsTeacherOrPrincipalPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         # If user is Admin permission is granted 
-        if request.user.is_staff:
+        if request.user.is_superuser:
             return True
         pk = request.resolver_match.kwargs.get('pk')
         
@@ -33,7 +41,7 @@ class SubjectTeacherPermission(permissions.BasePermission):
     
     def has_permission(self, request, view):
         # If user is Admin permission is granted 
-        if request.user.is_staff:
+        if request.user.is_superuser:
             return True
         pk = request.resolver_match.kwargs.get('pk')
         if Teacher.objects.filter(user__id=request.user.id, schoolsubject__id=pk).exists():
@@ -64,7 +72,7 @@ class TeacherPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         # If user is Admin permission is granted 
-        if request.user.is_staff:
+        if request.user.is_superuser:
             return True
         # Checks if id of school on that route is in id's of schools to which the teacher is asigned 
         user = User.objects.filter(id = request.user.id).first()
@@ -97,7 +105,7 @@ class PrincipalPermission(permissions.BasePermission):
     
     def has_permission(self, request, view):
         # If user is Admin permission is granted 
-        if request.user.is_staff:
+        if request.user.is_superuser:
             return True
 
         # Checks if id of school on that route is in id's of schools to which the principal is asigned 

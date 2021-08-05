@@ -15,9 +15,15 @@ from .serializers import GradeSerializer, GradeSerializerPOST, SchoolSerializer,
                          StudentsInSubjectSerializerForList, PostSerializer
 
 from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherPermission, \
-                         SubjectTeacherGradesPermission, StudentGradesPermission, SchoolPostsTeacherOrPrincipalPermission
+                         SubjectTeacherGradesPermission, StudentGradesPermission, \
+                         SchoolPostsTeacherOrPrincipalPermission, SchoolPostDetailAuthor
 
         
+#Pagination
+class PostsPagination(PageNumberPagination):
+    page_size = 3
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 @api_view(['GET'])
@@ -47,27 +53,23 @@ class DetailSchool(generics.RetrieveAPIView):
     serializer_class = SchoolSerializer
     queryset = School.objects.all().select_related('principalteacher')
 
-#Pagination
-class PostsPagination(PageNumberPagination):
-    page_size = 3
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
 class SchoolPostDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
     
     @property
     def permission_classes(self):
-        if self.request.method in ['POST', 'PUT', 'DELETE', 'PATCH']:
-            return [SubjectTeacherGradesPermission]
+        if self.request.method in ['PUT', 'DELETE', 'PATCH']:
+            return [SchoolPostDetailAuthor]
         elif self.request.method in ['GET']:
-            return [AllowAny]
+            return [SchoolPostDetailAuthor]
         return [IsAdminUser]
 
     def get_object(self):
         pk1 =self.kwargs['pk1']
         pk2 =self.kwargs['pk2']
-        return Post.objects.select_related('author','school').get(school__id=pk1, id=pk2)
+        obj = Post.objects.select_related('author','school').get(school__id=pk1, id=pk2)
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 class SchoolPosts(generics.ListCreateAPIView):
     serializer_class = PostSerializer
@@ -85,7 +87,7 @@ class SchoolPosts(generics.ListCreateAPIView):
 
     def get_queryset(self):
         pk =self.kwargs['pk']
-        return Post.objects.filter(school__id=pk).select_related('author','school')
+        return Post.objects.filter(school__id=pk).select_related('author', 'school')
 
 class ListSchoolTeachers(generics.ListAPIView):
     serializer_class = TeacherSerializerForTeachersList

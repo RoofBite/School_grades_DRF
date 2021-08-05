@@ -186,7 +186,7 @@ class StudentSerializerForList(serializers.ModelSerializer):
                         'school': {'required': False},'subject': {'required': False}}
 
     def create(self, data):
-        if self.context['request'].user.is_staff:
+        if self.context['request'].user.is_superuser:
             school_field = School.objects.get(id=data['school'].get('id'))
         else: 
             school_field = PrincipalTeacher.objects.filter(user__id=self.context['request'].user.id).first().school
