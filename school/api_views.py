@@ -9,7 +9,7 @@ from rest_framework.mixins import CreateModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
 from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User, Grade, Post
-from .serializers import GradeSerializer, SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
+from .serializers import GradeSerializer, GradeSerializerPOST, SchoolSerializer, SchoolClassSerializer, SchoolSubjectSerializer, \
                          StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, \
                          SchoolClassSerializerForList, StudentSerializerGrades, \
                          StudentsInSubjectSerializerForList, PostSerializer
@@ -32,7 +32,7 @@ def get_routes(request):
     {'GET, HEAD, OPTIONS' : '/api/schools/pk/classes'},
     {'GET, HEAD, OPTIONS' : '/api/subjects/<int:pk1>/students'},
     {'GET, PUT, PATCH, HEAD, OPTIONS' : '/api/subjects/<int:pk1>/students/<int:pk2>/'},
-    {'GET, PUT, PATCH, POST, HEAD, OPTIONS':'api/subjects/<int:pk1>/students/<int:pk2>/grades/<int:pk3>/'}
+    {'GET, PUT, POST, HEAD, OPTIONS':'api/subjects/<int:pk1>/students/<int:pk2>/grades/<int:pk3>/'}
     ]
 
     return Response(routes)
@@ -98,17 +98,22 @@ class ListSubjectStudents(generics.ListAPIView):
         return Student.objects.filter(subject__id=pk).select_related('school','school_class')
 
 class StudentGradesInSubject(CreateModelMixin, generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = GradeSerializer
     lookup_field = ('pk1','pk2','pk3')
 
     @property
     def permission_classes(self):
-        if self.request.method in ['POST', "PATCH", "PUT"]:
+        if self.request.method in ['POST', 'PUT', 'DELETE']:
             return [SubjectTeacherGradesPermission]
         elif self.request.method in ['GET']:
             return [SubjectTeacherGradesPermission | StudentGradesPermission]
         return [IsAdminUser]
 
+    def get_serializer_class(self):
+        if self.request.method in ['POST']:
+            return GradeSerializerPOST
+        elif self.request.method in ['GET', 'PUT', 'DELETE']:
+            return GradeSerializer
+             
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
     

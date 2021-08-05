@@ -89,9 +89,16 @@ class SchoolSubjectSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {'name': {'required': False},'id': {'required': False}}
 
-
 class GradeSerializer(serializers.ModelSerializer):
-    subject = SchoolSubjectSerializerForGrades(many=False)
+    subject = SchoolSubjectSerializerForGrades(many=False, required=False)
+    id = serializers.IntegerField(required=True)
+    class Meta:
+        model = Grade
+        fields = ('id','value','subject')
+        extra_kwargs = {'id': {'required': True}, 'subject': {'required': True}}
+
+class GradeSerializerPOST(serializers.ModelSerializer):
+    subject = SchoolSubjectSerializerForGrades(many=False, required=False)
     class Meta:
         model = Grade
         fields = ('id','value','subject')
