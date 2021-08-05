@@ -1,5 +1,32 @@
 from rest_framework import permissions
-from .models import School, SchoolClass, SchoolSubject, Student, Teacher, User, Post
+from .models import PrincipalTeacher, School, SchoolClass, SchoolSubject, Student, Teacher, User, Post
+
+class SchoolPostsTeacherOrPrincipalPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        # If user is Admin permission is granted 
+        if request.user.is_staff:
+            return True
+        pk = request.resolver_match.kwargs.get('pk')
+        
+        if Teacher.objects.filter(user__id=request.user.id).exists():
+            
+            teacher_school_ids = Teacher.objects.get(user__id=request.user.id).school.values_list('id', flat = True)     
+        else:
+            teacher_school_ids = None
+        
+        if PrincipalTeacher.objects.filter(user__id=request.user.id).exists():
+            principal_school_id = PrincipalTeacher.objects.get(user__id=request.user.id).school_id
+        else:
+            principal_school_id = None
+        
+        if teacher_school_ids:
+            return pk in teacher_school_ids
+        
+        if principal_school_id == pk:
+            return True
+        
+        return False
+
 
 
 class SubjectTeacherPermission(permissions.BasePermission):
@@ -17,9 +44,9 @@ class SubjectTeacherPermission(permissions.BasePermission):
 class StudentGradesPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         
-        if request.method=='GET':
+        if request.method =='GET':
             pk2 = request.resolver_match.kwargs.get('pk2')
-            return pk2== request.user.id
+            return pk2 == request.user.id
 
 class SubjectTeacherGradesPermission(permissions.BasePermission):
     def has_permission(self, request, view):

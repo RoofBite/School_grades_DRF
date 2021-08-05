@@ -13,8 +13,9 @@ from .serializers import GradeSerializer, GradeSerializerPOST, SchoolSerializer,
                          StudentSerializerForList, TeacherSerializer, TeacherSerializerForTeachersList, \
                          SchoolClassSerializerForList, StudentSerializerGrades, \
                          StudentsInSubjectSerializerForList, PostSerializer
+
 from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherPermission, \
-                         SubjectTeacherGradesPermission, StudentGradesPermission
+                         SubjectTeacherGradesPermission, StudentGradesPermission, SchoolPostsTeacherOrPrincipalPermission
 
         
 
@@ -52,6 +53,21 @@ class PostsPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 100
 
+class SchoolPostDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = PostSerializer
+    
+    @property
+    def permission_classes(self):
+        if self.request.method in ['POST', 'PUT', 'DELETE', 'PATCH']:
+            return [SubjectTeacherGradesPermission]
+        elif self.request.method in ['GET']:
+            return [AllowAny]
+        return [IsAdminUser]
+
+    def get_object(self):
+        pk1 =self.kwargs['pk1']
+        pk2 =self.kwargs['pk2']
+        return Post.objects.select_related('author','school').get(school__id=pk1, id=pk2)
 
 class SchoolPosts(generics.ListCreateAPIView):
     serializer_class = PostSerializer
@@ -59,6 +75,14 @@ class SchoolPosts(generics.ListCreateAPIView):
     search_fields = ['title', 'body','author__last_name']
     filter_backends = (filters.SearchFilter,)
     
+    @property
+    def permission_classes(self):
+        if self.request.method in ['POST']:
+            return [SchoolPostsTeacherOrPrincipalPermission]
+        elif self.request.method in ['GET']:
+            return [AllowAny]
+        return [IsAdminUser]
+
     def get_queryset(self):
         pk =self.kwargs['pk']
         return Post.objects.filter(school__id=pk).select_related('author','school')
@@ -102,7 +126,7 @@ class StudentGradesInSubject(CreateModelMixin, generics.RetrieveUpdateDestroyAPI
 
     @property
     def permission_classes(self):
-        if self.request.method in ['POST', 'PUT', 'DELETE']:
+        if self.request.method in ['POST', 'PUT', 'DELETE', 'PATCH']:
             return [SubjectTeacherGradesPermission]
         elif self.request.method in ['GET']:
             return [SubjectTeacherGradesPermission | StudentGradesPermission]
@@ -111,7 +135,7 @@ class StudentGradesInSubject(CreateModelMixin, generics.RetrieveUpdateDestroyAPI
     def get_serializer_class(self):
         if self.request.method in ['POST']:
             return GradeSerializerPOST
-        elif self.request.method in ['GET', 'PUT', 'DELETE']:
+        elif self.request.method in ['GET', 'PUT', 'DELETE', 'PATCH']:
             return GradeSerializer
              
     def post(self, request, *args, **kwargs):
@@ -123,6 +147,8 @@ class StudentGradesInSubject(CreateModelMixin, generics.RetrieveUpdateDestroyAPI
         pk3 = self.kwargs['pk3']
         
         return Grade.objects.select_related('student','subject').get(id=pk3, subject__id=pk1, student__user__id=pk2)
+
+        
 
 class StudentInSubjectDetail(generics.RetrieveAPIView):
     serializer_class = StudentSerializerGrades

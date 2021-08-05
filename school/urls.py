@@ -9,6 +9,7 @@ urlpatterns= [
     path('schools/', ListSchool.as_view()),
     path('schools/<int:pk>/', DetailSchool.as_view()),
     path('schools/<int:pk>/posts/', SchoolPosts.as_view()),
+    path('schools/<int:pk1>/posts/<int:pk2>/', SchoolPostDetail.as_view()),
     path('schools/<int:pk>/teachers/', ListSchoolTeachers.as_view()),
     path('schools/<int:pk>/students/', ListSchoolStudents.as_view()),
     path('schools/<int:pk>/classes/', ListSchoolClasses.as_view()), 
