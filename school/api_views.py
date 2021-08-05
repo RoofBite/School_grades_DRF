@@ -15,7 +15,7 @@ from .serializers import GradeSerializer, GradeSerializerPOST, SchoolSerializer,
                          StudentsInSubjectSerializerForList, PostSerializer
 
 from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherPermission, \
-                         SubjectTeacherGradesPermission, StudentGradesPermission, \
+                         SubjectTeacherGradePermission, StudentGradePermission, \
                          SchoolPostsTeacherOrPrincipalPermission, SchoolPostDetailAuthor
 
         
@@ -123,25 +123,35 @@ class ListSubjectStudents(generics.ListAPIView):
         
         return Student.objects.filter(subject__id=pk).select_related('school','school_class')
 
-class StudentGradesInSubject(CreateModelMixin, generics.RetrieveUpdateDestroyAPIView):
-    lookup_field = ('pk1','pk2','pk3')
+class StudentGradeInSubject(generics.ListCreateAPIView):
+    lookup_field = ('pk1','pk2')
+    serializer_class = GradeSerializerPOST
 
     @property
     def permission_classes(self):
-        if self.request.method in ['POST', 'PUT', 'DELETE', 'PATCH']:
-            return [SubjectTeacherGradesPermission]
-        elif self.request.method in ['GET']:
-            return [SubjectTeacherGradesPermission | StudentGradesPermission]
-        return [IsAdminUser]
-
-    def get_serializer_class(self):
         if self.request.method in ['POST']:
-            return GradeSerializerPOST
-        elif self.request.method in ['GET', 'PUT', 'DELETE', 'PATCH']:
-            return GradeSerializer
-             
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+            return [SubjectTeacherGradePermission]
+        elif self.request.method in ['GET']:
+            return [SubjectTeacherGradePermission | StudentGradePermission]
+        return [IsAdminUser]    
+    
+    def get_queryset(self):
+        pk1 = self.kwargs['pk1']
+        pk2 = self.kwargs['pk2']
+        
+        return Grade.objects.select_related('student', 'subject').filter(subject__id=pk1, student__user__id=pk2)
+
+class StudentGradeInSubjectDetail(generics.RetrieveUpdateDestroyAPIView):
+    lookup_field = ('pk1','pk2','pk3')
+    serializer_class = GradeSerializer
+    
+    @property
+    def permission_classes(self):
+        if self.request.method in ['PUT', 'DELETE', 'PATCH']:
+            return [SubjectTeacherGradePermission]
+        elif self.request.method in ['GET']:
+            return [SubjectTeacherGradePermission | StudentGradePermission]
+        return [IsAdminUser]    
     
     def get_object(self):
         pk1 = self.kwargs['pk1']
@@ -159,7 +169,7 @@ class StudentInSubjectDetail(generics.RetrieveAPIView):
     @property
     def permission_classes(self):
         if self.request.method in ['GET']:
-            return [SubjectTeacherGradesPermission | StudentGradesPermission]
+            return [SubjectTeacherGradePermission | StudentGradePermission]
         return [IsAdminUser]
 
     def get_object(self):

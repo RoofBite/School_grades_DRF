@@ -49,14 +49,14 @@ class SubjectTeacherPermission(permissions.BasePermission):
         else:
             return False
 
-class StudentGradesPermission(permissions.BasePermission):
+class StudentGradePermission(permissions.BasePermission):
     def has_permission(self, request, view):
         
         if request.method =='GET':
             pk2 = request.resolver_match.kwargs.get('pk2')
             return pk2 == request.user.id
 
-class SubjectTeacherGradesPermission(permissions.BasePermission):
+class SubjectTeacherGradePermission(permissions.BasePermission):
     def has_permission(self, request, view):
         
         pk1 = request.resolver_match.kwargs.get('pk1')

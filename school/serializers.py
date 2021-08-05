@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import School, SchoolClass, SchoolSubject, Student, \
                     Teacher, User, PrincipalTeacher, Grade, Post
-from rest_framework.fields import CurrentUserDefault
+
 
 
 
@@ -55,8 +55,8 @@ class PostSerializer(serializers.ModelSerializer):
         school = School.objects.get(id=school_id)
         user = User.objects.get(id=self.context['request'].user.id)
         new_post = Post.objects.create(title=title, body=body, school=school, author=user )
-        
         return new_post
+
 class TeacherSerializerForClassList(serializers.ModelSerializer):
     
     class Meta:
