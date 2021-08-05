@@ -46,7 +46,7 @@ class DetailSchool(generics.RetrieveAPIView):
     serializer_class = SchoolSerializer
     queryset = School.objects.all().select_related('principalteacher')
 
-#Pagintion
+#Pagination
 class PostsPagination(PageNumberPagination):
     page_size = 3
     page_size_query_param = 'page_size'
@@ -58,6 +58,7 @@ class SchoolPosts(generics.ListAPIView):
     pagination_class = PostsPagination
     search_fields = ['title', 'body','author__last_name']
     filter_backends = (filters.SearchFilter,)
+    
     def get_queryset(self):
         pk =self.kwargs['pk']
         return Post.objects.filter(school__id=pk).select_related('author','school')
@@ -90,6 +91,7 @@ class ListSubjectStudents(generics.ListAPIView):
     serializer_class = StudentsInSubjectSerializerForList
     permission_classes = [SubjectTeacherPermission]
     lookup_field = 'pk'
+    
     def get_queryset(self):
         pk = self.kwargs['pk']
         

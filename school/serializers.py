@@ -3,11 +3,6 @@ from .models import School, SchoolClass, SchoolSubject, Student, \
                     Teacher, User, PrincipalTeacher, Grade, Post
 from rest_framework.fields import CurrentUserDefault
 
-class PostSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Post
-        fields = '__all__'
 
 
 class PrincipalTeacherSerializer(serializers.ModelSerializer):
@@ -32,12 +27,24 @@ class SchoolSerializerForStudentList(serializers.ModelSerializer):
         
         extra_kwargs = {'name': {'required': False}}
 
+class UserSerializerForPostList(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name')
+
 class UserSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     class Meta:
-        model = School
+        model = User
         fields = '__all__'
-        
+
+class PostSerializer(serializers.ModelSerializer):
+    author = UserSerializerForPostList()
+    class Meta:
+        model = Post
+        fields =('title', 'body', 'author')
+
 class TeacherSerializerForClassList(serializers.ModelSerializer):
     
     class Meta:
