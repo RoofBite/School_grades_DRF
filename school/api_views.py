@@ -117,7 +117,7 @@ class ListSchoolStudents(generics.ListCreateAPIView):
         if self.request.method in ['POST']:
             return [PrincipalPermission]
         elif self.request.method in ['GET']:
-            return [IsAuthenticated, TeacherPermission | PrincipalPermission ]
+            return [IsAuthenticated, TeacherPermission | PrincipalPermission]
         return [IsAdminUser]
     
     def get_queryset(self):
@@ -187,7 +187,6 @@ class StudentInSubjectDetail(generics.RetrieveAPIView):
     def get_object(self):
         pk1 = self.kwargs['pk1']
         pk2 = self.kwargs['pk2']
-        
         return Student.objects.select_related('school_class').get(subject__id=pk1, user__id=pk2)
 
 class ListSchoolClasses(generics.ListAPIView):
@@ -195,5 +194,4 @@ class ListSchoolClasses(generics.ListAPIView):
     
     def get_queryset(self):
         pk = self.kwargs['pk']
-        
         return SchoolClass.objects.filter(school__id=pk).select_related('supervising_teacher').prefetch_related('subject')
