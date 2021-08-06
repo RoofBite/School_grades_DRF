@@ -1,3 +1,5 @@
+from rest_framework.exceptions import NotFound
+from rest_framework import status
 from rest_framework import generics
 from rest_framework import response
 from rest_framework.decorators import api_view, permission_classes
@@ -64,12 +66,19 @@ class SchoolPostDetail(generics.RetrieveUpdateDestroyAPIView):
             return [SchoolPostDetailAuthor]
         return [IsAdminUser]
 
+    def error404(request):
+        raise NotFound(detail="Error 404, object not found", code=404)
+
     def get_object(self):
         pk1 =self.kwargs['pk1']
         pk2 =self.kwargs['pk2']
-        obj = Post.objects.select_related('author','school').get(school__id=pk1, id=pk2)
-        self.check_object_permissions(self.request, obj)
-        return obj
+
+        try:
+            obj = Post.objects.select_related('author','school').get(school__id=pk1, id=pk2)
+            self.check_object_permissions(self.request, obj)
+            return obj
+        except Post.DoesNotExist:
+            return self.error404()
 
 class SchoolPosts(generics.ListCreateAPIView):
     serializer_class = PostSerializer
@@ -85,9 +94,12 @@ class SchoolPosts(generics.ListCreateAPIView):
             return [AllowAny]
         return [IsAdminUser]
 
+
     def get_queryset(self):
         pk =self.kwargs['pk']
+        
         return Post.objects.filter(school__id=pk).select_related('author', 'school')
+        
 
 class ListSchoolTeachers(generics.ListAPIView):
     serializer_class = TeacherSerializerForTeachersList
