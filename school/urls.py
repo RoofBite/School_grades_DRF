@@ -11,7 +11,7 @@ urlpatterns= [
     path('schools/<int:pk>/posts/', SchoolPosts.as_view(), name='school-posts'),
     path('schools/<int:pk1>/posts/<int:pk2>/', SchoolPostDetail.as_view(), name='school-post-detail'),
     path('schools/<int:pk>/teachers/', ListSchoolTeachers.as_view(), name='school-teachers'),
-    path('schools/<int:pk>/students/', ListSchoolStudents.as_view()),
+    path('schools/<int:pk>/students/', ListSchoolStudents.as_view(), name='list-school-students'),
     path('schools/<int:pk>/classes/', ListSchoolClasses.as_view()), 
     path('subjects/<int:pk>/students/', ListSubjectStudents.as_view()),
     path('subjects/<int:pk1>/students/<int:pk2>/', StudentInSubjectDetail.as_view(), name='student-detail'),

@@ -1,5 +1,5 @@
 from rest_framework.test import APITestCase
-from school.models import School, SchoolClass, SchoolSubject, Student, Teacher, User, Grade, Post
+from school.models import School, SchoolClass, SchoolSubject, Student, Teacher, User, Grade, Post, PrincipalTeacher
 from school.api_views import ListSchoolTeachers
 from rest_framework.test import APIClient
 import json
@@ -135,8 +135,35 @@ class TestSchoolPosts(APITestCase):
         data = {"title": "Post1", "body": "Body1"}
         response = self.client.post(reverse('school-posts', kwargs={'pk':1}), data=data)
         result = response.json()
-        
+
         self.assertEqual(reverse('school-posts', kwargs={'pk':1}), self.url)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(result['title'], 'Post1')
         self.assertEqual(result['body'], 'Body1')
+
+class TestListSchoolStudents(APITestCase):
+    pk_url = '1'
+    url = f'/api/schools/{pk_url}/students/'
+    
+    def setUp(self):
+        self.client = APIClient()
+        self.user1 = User.objects.create_user('username1', 'Pas$w0rd')
+        self.user2 = User.objects.create_user('username2', 'Pas$w0rd')
+        self.client.force_authenticate(self.user1)
+        
+
+    
+    def test_students_list_GET(self):
+        school = School.objects.create(name='School1')
+        PrincipalTeacher.objects.create(first_name='Principal', last_name='PrincipalLast',
+                                        user=self.user1, school=school) 
+        Student.objects.create(user=self.user2, first_name='Student',
+                               last_name='StudentLast', school=school)
+
+        response = self.client.get(reverse('list-school-students', kwargs={'pk':1}))
+        result = response.json()
+
+        self.assertEqual(reverse('list-school-students', kwargs={'pk':1}), self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(result[0]['first_name'], 'Student')
+        self.assertEqual(result[0]['last_name'], 'StudentLast')
