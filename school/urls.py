@@ -8,7 +8,7 @@ urlpatterns= [
     path('users/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('schools/', ListSchool.as_view()),
     path('schools/<int:pk>/', DetailSchool.as_view()),
-    path('schools/<int:pk>/posts/', SchoolPosts.as_view()),
+    path('schools/<int:pk>/posts/', SchoolPosts.as_view(), name='school-posts'),
     path('schools/<int:pk1>/posts/<int:pk2>/', SchoolPostDetail.as_view(), name='school-post-detail'),
     path('schools/<int:pk>/teachers/', ListSchoolTeachers.as_view(), name='school-teachers'),
     path('schools/<int:pk>/students/', ListSchoolStudents.as_view()),

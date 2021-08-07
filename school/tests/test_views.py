@@ -3,7 +3,6 @@ from school.models import School, SchoolClass, SchoolSubject, Student, Teacher, 
 from school.api_views import ListSchoolTeachers
 from rest_framework.test import APIClient
 import json
-
 from django.urls import reverse
 
 class TestListSchool(APITestCase):
@@ -107,4 +106,37 @@ class TestSchoolPostDetail(APITestCase):
         self.assertEqual(reverse('school-post-detail', kwargs={'pk1':1,'pk2':1}), self.url)
         self.assertEqual(response.status_code, 204)
         
+class TestSchoolPosts(APITestCase):
+    pk_url = '1'
+    url = f'/api/schools/{pk_url}/posts/'
+    
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user('username', 'Pas$w0rd')
+        self.client.force_authenticate(self.user)
+
+    def test_post_list_GET(self):
+        school = School.objects.create(name='School1')
+        Post.objects.create(title='Post1', body='Body1', author=self.user, school=school) 
+        response = self.client.get(reverse('school-posts', kwargs={'pk':1}))
+        result = response.json()
+
+        self.assertEqual(reverse('school-posts', kwargs={'pk':1}), self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(result['results'], list)
+        self.assertEqual(result['results'][0]['title'], 'Post1')
+        self.assertEqual(result['results'][0]['body'], 'Body1')
+
+
+    def test_post_list_POST(self):
+        school = School.objects.create(name='School1')
+        teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user)
+        teacher.school.add(school)
+        data = {"title": "Post1", "body": "Body1"}
+        response = self.client.post(reverse('school-posts', kwargs={'pk':1}), data=data)
+        result = response.json()
         
+        self.assertEqual(reverse('school-posts', kwargs={'pk':1}), self.url)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(result['title'], 'Post1')
+        self.assertEqual(result['body'], 'Body1')
