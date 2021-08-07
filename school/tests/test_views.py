@@ -81,6 +81,18 @@ class TestSchoolPostDetail(APITestCase):
         
         response = self.client.put(reverse('school-post-detail', kwargs={'pk1':1,'pk2':1}), data=data)
         result = response.json()
+
+        self.assertEqual(reverse('school-post-detail', kwargs={'pk1':1,'pk2':1}), self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(result['title'], 'Post2')
+    
+    def test_post_detail_PATCH(self):
+        school = School.objects.create(name='School1')
+        Post.objects.create(title='Post1', body='Body1', author=self.user, school=school) 
+        data = {"title": "Post2", "body": "Body2"}
+        
+        response = self.client.patch(reverse('school-post-detail', kwargs={'pk1':1,'pk2':1}), data=data)
+        result = response.json()
         
         self.assertEqual(reverse('school-post-detail', kwargs={'pk1':1,'pk2':1}), self.url)
         self.assertEqual(response.status_code, 200)
