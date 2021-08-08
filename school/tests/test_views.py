@@ -242,3 +242,31 @@ class TestListSchoolStudents(APITestCase):
 
         self.assertEqual(reverse('list-school-students', kwargs={'pk':1}), self.url)
         self.assertEqual(response.status_code, 403)
+
+# Teacher.objects.filter(user__id=request.user.id, schoolsubject__id=pk).exists():
+class TestListSubjectStudents(APITestCase):
+    pk_url = '1'
+    url = f'/api/subjects/{pk_url}/students/'
+    
+    def setUp(self):
+        self.client = APIClient()
+        self.user1 = User.objects.create_user('username1', 'Pas$w0rd')
+        self.user2 = User.objects.create_user('username2', 'Pas$w0rd')
+        self.client.force_authenticate(self.user1)
+
+    def test_subject_students_list_GET(self):
+        school = School.objects.create(name='School1')
+        teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user1)
+        teacher.school.add(school)
+        subject = SchoolSubject.objects.create(name='subject', teacher=teacher, school=school)
+        student = Student.objects.create(user=self.user2, first_name='Student',
+                               last_name='StudentLast', school=school)
+        student.subject.add(subject)
+        response = self.client.get(reverse('list-subject-students', kwargs={'pk':1}))
+        result = response.json()
+        print(result)
+        self.assertEqual(reverse('list-subject-students', kwargs={'pk':1}), self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(result, list)
+        self.assertEqual(result[0]['first_name'], 'Student')
+        self.assertEqual(result[0]['last_name'], 'StudentLast')

@@ -13,7 +13,7 @@ urlpatterns= [
     path('schools/<int:pk>/teachers/', ListSchoolTeachers.as_view(), name='school-teachers'),
     path('schools/<int:pk>/students/', ListSchoolStudents.as_view(), name='list-school-students'),
     path('schools/<int:pk>/classes/', ListSchoolClasses.as_view()), 
-    path('subjects/<int:pk>/students/', ListSubjectStudents.as_view()),
+    path('subjects/<int:pk>/students/', ListSubjectStudents.as_view(), name='list-subject-students'),
     path('subjects/<int:pk1>/students/<int:pk2>/', StudentInSubjectDetail.as_view(), name='student-detail'),
     path('subjects/<int:pk1>/students/<int:pk2>/grades/<int:pk3>/', StudentGradeInSubjectDetail.as_view(), name='student-grades'),
     path('subjects/<int:pk1>/students/<int:pk2>/grades/', StudentGradeInSubject.as_view()),
