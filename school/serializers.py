@@ -99,6 +99,7 @@ class GradeSerializer(serializers.ModelSerializer):
 
 class GradeSerializerPOST(serializers.ModelSerializer):
     subject = SchoolSubjectSerializerForGrades(many=False, required=False)
+    
     class Meta:
         model = Grade
         fields = ('id','value','subject')
@@ -116,7 +117,7 @@ class GradeSerializerPOST(serializers.ModelSerializer):
         return grade
 
 class SchoolSubjectSerializerForClassList(serializers.ModelSerializer):
-    teacher = TeacherSerializerForClassList("schoolclass", read_only=True, many=True)
+    teacher = TeacherSerializerForClassList("schoolclass", read_only=True, many=False)
     
     class Meta:
         model = SchoolSubject
@@ -128,6 +129,7 @@ class SchoolClassSerializer(serializers.ModelSerializer):
     supervising_teacher = TeacherSerializer(many=False)
     school = SchoolSerializer(many=False)
     subject = SchoolSubjectSerializer(many=True)
+
     class Meta:
         model = SchoolClass
         fields = ('id', 'name', 'supervising_teacher', 'school', 'subject')
@@ -135,8 +137,8 @@ class SchoolClassSerializer(serializers.ModelSerializer):
 class SchoolClassSerializerForList(serializers.ModelSerializer):
     id = serializers.IntegerField()
     supervising_teacher = TeacherSerializerForClassList(many=False)
-    
     subject = SchoolSubjectSerializerForClassList(many=True)
+
     class Meta:
         model = SchoolClass
         fields = ('id', 'name', 'supervising_teacher', 'subject')

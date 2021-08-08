@@ -364,3 +364,39 @@ class TestStudentGradeInSubject(APITestCase):
         self.assertEqual(result['value'], 2)
         self.assertEqual(result['subject']['id'], 1)
         self.assertEqual(result['subject']['name'], 'subject')
+
+class TestGetRoutes(APITestCase):
+    url = '/api/'
+
+    def test_get_routes(self):
+        response = self.client.get(reverse('get-routes'))
+        self.assertEqual(reverse('get-routes'), self.url)
+        self.assertEqual(response.status_code, 200)
+
+class TestListSchoolClasses(APITestCase):
+    pk_url = '1'
+    url = f'/api/schools/{pk_url}/classes/'
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user('username1', 'Pas$w0rd')
+        self.client.force_authenticate(self.user)
+     
+    
+    def test_list_school_classes(self):
+        
+        school = School.objects.create(name='School1')
+        teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user)
+        teacher.school.add(school)
+        subject = SchoolSubject.objects.create(name='subject', teacher=teacher, school=school)
+        school_class = SchoolClass.objects.create(name='schoolclass', supervising_teacher=teacher, school=school)
+        school_class.subject.add(subject)
+
+        response = self.client.get(reverse('list-school-classes', kwargs={'pk':1}))
+        result = response.json()
+        print(result)
+        self.assertEqual(reverse('list-school-classes', kwargs={'pk':1}), self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(result, list)
+        
+
