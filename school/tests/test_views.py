@@ -105,7 +105,18 @@ class TestSchoolPostDetail(APITestCase):
         
         self.assertEqual(reverse('school-post-detail', kwargs={'pk1':1,'pk2':1}), self.url)
         self.assertEqual(response.status_code, 204)
+
+    def test_post_detail_POST(self):
+        school = School.objects.create(name='School1')
+        Post.objects.create(title='Post1', body='Body1', author=self.user, school=school) 
+        data = {"title": "Post2", "body": "Body2"}
         
+        response = self.client.post(reverse('school-post-detail', kwargs={'pk1':1,'pk2':1}), data=data)
+        result = response.json()
+
+        self.assertEqual(reverse('school-post-detail', kwargs={'pk1':1,'pk2':1}), self.url)
+        self.assertEqual(response.status_code, 403)
+ 
 class TestSchoolPosts(APITestCase):
     pk_url = '1'
     url = f'/api/schools/{pk_url}/posts/'
@@ -140,6 +151,17 @@ class TestSchoolPosts(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(result['title'], 'Post1')
         self.assertEqual(result['body'], 'Body1')
+    
+    def test_post_list_PUT(self):
+        school = School.objects.create(name='School1')
+        teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user)
+        teacher.school.add(school)
+        data = {"title": "Post1", "body": "Body1"}
+        response = self.client.put(reverse('school-posts', kwargs={'pk':1}), data=data)
+        result = response.json()
+
+        self.assertEqual(reverse('school-posts', kwargs={'pk':1}), self.url)
+        self.assertEqual(response.status_code, 403)
 
 class TestListSchoolStudents(APITestCase):
     pk_url = '1'
@@ -195,3 +217,28 @@ class TestListSchoolStudents(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(result['first_name'], 'Student')
         self.assertEqual(result['last_name'], 'StudentLast')
+    
+    def test_students_list_PUT(self):
+        school = School.objects.create(name='School1')
+        principal = PrincipalTeacher.objects.create(first_name='Principal', last_name='PrincipalLast',
+                                        user=self.user1, school=school)
+        
+        teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user2)
+        teacher.school.add(school)
+        subject = SchoolSubject.objects.create(name='subject', teacher=teacher, school=school)
+        school_class = SchoolClass.objects.create(name='1', supervising_teacher=teacher, school=school)
+        school_class.subject.add(subject)
+
+        data = {
+        "first_name": "Student",
+        "last_name": "StudentLast",
+        "user": 3,
+        "school_class": {
+            "id": 1
+        }}
+
+        response = self.client.put(reverse('list-school-students', kwargs={'pk':1}), data=data, format='json')
+        result = response.json()
+
+        self.assertEqual(reverse('list-school-students', kwargs={'pk':1}), self.url)
+        self.assertEqual(response.status_code, 403)
