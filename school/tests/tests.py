@@ -221,6 +221,37 @@ class TestListSchoolStudents(APITestCase):
         self.assertEqual(result['first_name'], 'Student')
         self.assertEqual(result['last_name'], 'StudentLast')
     
+    def test_students_list_admin_POST(self):
+        self.user4 = User.objects.create_superuser('username4', 'Pas$w0rd')
+        self.client.force_authenticate(self.user4)
+        school = School.objects.create(name='School1')
+        principal = PrincipalTeacher.objects.create(first_name='Principal', last_name='PrincipalLast',
+                                        user=self.user1, school=school)
+        
+        teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user2)
+        teacher.school.add(school)
+        subject = SchoolSubject.objects.create(name='subject', teacher=teacher, school=school)
+        school_class = SchoolClass.objects.create(name='1', supervising_teacher=teacher, school=school)
+        school_class.subject.add(subject)
+
+        data = {
+        "first_name": "Student",
+        "last_name": "StudentLast",
+        "user": 3,
+        "school_class": {
+            "id": 1
+        },
+        "school": 1
+        }
+
+        response = self.client.post(reverse('list-school-students', kwargs={'pk':1}), data=data, format='json')
+        result = response.json()
+        print(result)
+        self.assertEqual(reverse('list-school-students', kwargs={'pk':1}), self.url)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(result['first_name'], 'Student')
+        self.assertEqual(result['last_name'], 'StudentLast')
+
     def test_students_list_PUT(self):
         school = School.objects.create(name='School1')
         principal = PrincipalTeacher.objects.create(first_name='Principal', last_name='PrincipalLast',

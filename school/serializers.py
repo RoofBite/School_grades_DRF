@@ -183,13 +183,13 @@ class StudentSerializerForList(serializers.ModelSerializer):
     
     class Meta:
         model = Student
-        fields = ('current_user', 'first_name', 'last_name', 'user', 'school_class', )
+        fields = ('current_user', 'first_name', 'last_name', 'user', 'school_class', 'school' )
         extra_kwargs = {'user': {'required': False},'school_class': {'required': False},
                         'school': {'required': False},'subject': {'required': False}}
 
     def create(self, data):
         if self.context['request'].user.is_superuser:
-            school_field = School.objects.get(id=data['school'].get('id'))
+            school_field = School.objects.get(id=data['school'].id)
         else: 
             school_field = PrincipalTeacher.objects.filter(user__id=self.context['request'].user.id).first().school
         
