@@ -166,30 +166,31 @@ class StudentGradeInSubjectDetail(generics.RetrieveUpdateDestroyAPIView):
             return [SubjectTeacherGradePermission | StudentGradePermission]
         return [NotAllowed]    
     
+    def error404(request):
+        raise NotFound(detail="Error 404, object not found", code=404)
+
     def get_object(self):
         pk1 = self.kwargs['pk1']
         pk2 = self.kwargs['pk2']
         pk3 = self.kwargs['pk3']
-        
-        return Grade.objects.select_related('student','subject').get(id=pk3, subject__id=pk1, student__user__id=pk2)
 
+        try:
+            return Grade.objects.select_related('student','subject').get(id=pk3, subject__id=pk1, student__user__id=pk2)
+        except Grade.DoesNotExist:
+            return self.error404()
         
 
 class StudentInSubjectDetail(generics.RetrieveAPIView):
     serializer_class = StudentSerializerGrades
     lookup_field = ('pk1','pk2')
-
-    @property
-    def permission_classes(self):
-        if self.request.method in ['GET']:
-            return [SubjectTeacherGradePermission | StudentGradePermission]
-        return [NotAllowed]
+    permission_classes = [SubjectTeacherGradePermission | StudentGradePermission]
 
     def get_object(self):
         pk1 = self.kwargs['pk1']
         pk2 = self.kwargs['pk2']
+        
         return Student.objects.select_related('school_class').get(subject__id=pk1, user__id=pk2)
-
+        
 class ListSchoolClasses(generics.ListAPIView):
     serializer_class = SchoolClassSerializerForList
     
