@@ -1,6 +1,9 @@
 from rest_framework import permissions
 from .models import PrincipalTeacher, School, SchoolClass, SchoolSubject, Student, Teacher, User, Post
 
+class NotAllowed(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return False
 
 class SchoolPostDetailAuthor(permissions.BasePermission):
     def has_permission(self, request, view):

@@ -18,7 +18,8 @@ from .serializers import GradeSerializer, GradeSerializerPOST, SchoolSerializer,
 
 from .permissions import TeacherPermission, PrincipalPermission, SubjectTeacherPermission, \
                          SubjectTeacherGradePermission, StudentGradePermission, \
-                         SchoolPostsTeacherOrPrincipalPermission, SchoolPostDetailAuthor
+                         SchoolPostsTeacherOrPrincipalPermission, SchoolPostDetailAuthor, \
+                         NotAllowed
 
         
 #Pagination
@@ -64,7 +65,7 @@ class SchoolPostDetail(generics.RetrieveUpdateDestroyAPIView):
             return [SchoolPostDetailAuthor]
         elif self.request.method in ['GET']:
             return [SchoolPostDetailAuthor]
-        return [IsAdminUser]
+        return [NotAllowed]
 
     def error404(request):
         raise NotFound(detail="Error 404, object not found", code=404)
@@ -92,7 +93,7 @@ class SchoolPosts(generics.ListCreateAPIView):
             return [SchoolPostsTeacherOrPrincipalPermission]
         elif self.request.method in ['GET']:
             return [AllowAny]
-        return [IsAdminUser]
+        return [NotAllowed]
 
 
     def get_queryset(self):
@@ -118,7 +119,7 @@ class ListSchoolStudents(generics.ListCreateAPIView):
             return [PrincipalPermission]
         elif self.request.method in ['GET']:
             return [IsAuthenticated, TeacherPermission | PrincipalPermission]
-        return [IsAdminUser]
+        return [NotAllowed]
     
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -145,7 +146,7 @@ class StudentGradeInSubject(generics.ListCreateAPIView):
             return [SubjectTeacherGradePermission]
         elif self.request.method in ['GET']:
             return [SubjectTeacherGradePermission | StudentGradePermission]
-        return [IsAdminUser]    
+        return [NotAllowed]    
     
     def get_queryset(self):
         pk1 = self.kwargs['pk1']
@@ -163,7 +164,7 @@ class StudentGradeInSubjectDetail(generics.RetrieveUpdateDestroyAPIView):
             return [SubjectTeacherGradePermission]
         elif self.request.method in ['GET']:
             return [SubjectTeacherGradePermission | StudentGradePermission]
-        return [IsAdminUser]    
+        return [NotAllowed]    
     
     def get_object(self):
         pk1 = self.kwargs['pk1']
@@ -182,7 +183,7 @@ class StudentInSubjectDetail(generics.RetrieveAPIView):
     def permission_classes(self):
         if self.request.method in ['GET']:
             return [SubjectTeacherGradePermission | StudentGradePermission]
-        return [IsAdminUser]
+        return [NotAllowed]
 
     def get_object(self):
         pk1 = self.kwargs['pk1']
