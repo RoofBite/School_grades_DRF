@@ -36,6 +36,7 @@ class TestListSchoolTeachers(APITestCase):
 
         response = self.client.get(reverse('school-teachers', kwargs={'pk': 1}))
         result = response.json()
+
         self.assertEqual(reverse('school-teachers', kwargs={'pk': 1}), self.url)
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(result, list)
@@ -56,6 +57,7 @@ class TestSchoolPostDetail(APITestCase):
     def test_post_detail_GET(self):
         school = School.objects.create(name='School1')
         Post.objects.create(title='Post1', body='Body1', author=self.user, school=school) 
+        
         response = self.client.get(reverse('school-post-detail', kwargs={'pk1':1,'pk2':1}))
         result = response.json()
     
@@ -67,6 +69,7 @@ class TestSchoolPostDetail(APITestCase):
     
     def test_post_detail_GET_404(self):
         school = School.objects.create(name='School1')
+
         response = self.client.get(reverse('school-post-detail', kwargs={'pk1':1,'pk2':1}))
         result = response.json()
         
@@ -138,11 +141,11 @@ class TestSchoolPosts(APITestCase):
         self.assertEqual(result['results'][0]['title'], 'Post1')
         self.assertEqual(result['results'][0]['body'], 'Body1')
 
-
     def test_post_list_POST(self):
         school = School.objects.create(name='School1')
         teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user)
         teacher.school.add(school)
+
         data = {"title": "Post1", "body": "Body1"}
         response = self.client.post(reverse('school-posts', kwargs={'pk':1}), data=data)
         result = response.json()
@@ -156,6 +159,7 @@ class TestSchoolPosts(APITestCase):
         school = School.objects.create(name='School1')
         teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user)
         teacher.school.add(school)
+
         data = {"title": "Post1", "body": "Body1"}
         response = self.client.put(reverse('school-posts', kwargs={'pk':1}), data=data)
         result = response.json()
@@ -174,8 +178,6 @@ class TestListSchoolStudents(APITestCase):
         self.user3 = User.objects.create_user('username3', 'Pas$w0rd')
         self.client.force_authenticate(self.user1)
         
-
-    
     def test_students_list_GET(self):
         school = School.objects.create(name='School1')
         PrincipalTeacher.objects.create(first_name='Principal', last_name='PrincipalLast',
@@ -262,8 +264,10 @@ class TestListSubjectStudents(APITestCase):
         student = Student.objects.create(user=self.user2, first_name='Student',
                                last_name='StudentLast', school=school)
         student.subject.add(subject)
+        
         response = self.client.get(reverse('list-subject-students', kwargs={'pk':1}))
         result = response.json()
+
         self.assertEqual(reverse('list-subject-students', kwargs={'pk':1}), self.url)
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(result, list)
@@ -281,7 +285,6 @@ class TestStudentGradeInSubject(APITestCase):
         self.user1 = User.objects.create_user('username1', 'Pas$w0rd')
         self.user2 = User.objects.create_user('username2', 'Pas$w0rd')
         
-    
     def test_student_grade_in_subject_student_GET(self):
         self.client.force_authenticate(self.user2)
         school = School.objects.create(name='School1')
@@ -291,8 +294,7 @@ class TestStudentGradeInSubject(APITestCase):
         student = Student.objects.create(user=self.user2, first_name='Student',
                                last_name='StudentLast', school=school)
         student.subject.add(subject)
-        grade = Grade.objects.create(value=1,subject=subject,student=student)
-        
+        Grade.objects.create(value=1,subject=subject,student=student)
 
         response = self.client.get(reverse('student-grade-in-subject', kwargs={'pk1':1,'pk2':2}))
         result = response.json()
@@ -304,3 +306,61 @@ class TestStudentGradeInSubject(APITestCase):
         self.assertEqual(result[0]['value'], 1)
         self.assertEqual(result[0]['subject']['id'], 1)
         self.assertEqual(result[0]['subject']['name'], 'subject')
+    
+    def test_student_grade_in_subject_teacher_GET(self):
+        self.client.force_authenticate(self.user1)
+        school = School.objects.create(name='School1')
+        teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user1)
+        teacher.school.add(school)
+        subject = SchoolSubject.objects.create(name='subject', teacher=teacher, school=school)
+        student = Student.objects.create(user=self.user2, first_name='Student',
+                               last_name='StudentLast', school=school)
+        student.subject.add(subject)
+        Grade.objects.create(value=1,subject=subject,student=student)
+        
+        response = self.client.get(reverse('student-grade-in-subject', kwargs={'pk1':1,'pk2':2}))
+        result = response.json()
+
+        self.assertEqual(reverse('student-grade-in-subject', kwargs={'pk1':1,'pk2':2}), self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(result, list)
+        self.assertEqual(result[0]['id'], 1)
+        self.assertEqual(result[0]['value'], 1)
+        self.assertEqual(result[0]['subject']['id'], 1)
+        self.assertEqual(result[0]['subject']['name'], 'subject')
+    
+    def test_student_grade_in_subject_teacher_PUT(self):
+        self.client.force_authenticate(self.user1)
+        school = School.objects.create(name='School1')
+        teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user1)
+        teacher.school.add(school)
+        subject = SchoolSubject.objects.create(name='subject', teacher=teacher, school=school)
+        student = Student.objects.create(user=self.user2, first_name='Student',
+                               last_name='StudentLast', school=school)
+        student.subject.add(subject)
+        Grade.objects.create(value=1,subject=subject,student=student)
+        
+        response = self.client.put(reverse('student-grade-in-subject', kwargs={'pk1':1,'pk2':2}))
+
+        self.assertEqual(reverse('student-grade-in-subject', kwargs={'pk1':1,'pk2':2}), self.url)
+        self.assertEqual(response.status_code, 403)
+    
+    def test_student_grade_in_subject_teacher_POST(self):
+        self.client.force_authenticate(self.user1)
+        school = School.objects.create(name='School1')
+        teacher = Teacher.objects.create(first_name="John", last_name="Smith", user=self.user1)
+        teacher.school.add(school)
+        subject = SchoolSubject.objects.create(name='subject', teacher=teacher, school=school)
+        student = Student.objects.create(user=self.user2, first_name='Student',
+                               last_name='StudentLast', school=school)
+        student.subject.add(subject)
+        #Grade.objects.create(value=1,subject=subject,student=student)
+        data = {"value": 2}
+        response = self.client.post(reverse('student-grade-in-subject', kwargs={'pk1':1,'pk2':2}),  data=data, format='json')
+        result = response.json()
+
+        self.assertEqual(reverse('student-grade-in-subject', kwargs={'pk1':1,'pk2':2}), self.url)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(result['value'], 2)
+        self.assertEqual(result['subject']['id'], 1)
+        self.assertEqual(result['subject']['name'], 'subject')

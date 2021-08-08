@@ -61,7 +61,6 @@ class StudentGradePermission(permissions.BasePermission):
 
 class SubjectTeacherGradePermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        
         pk1 = request.resolver_match.kwargs.get('pk1')
         pk2 = request.resolver_match.kwargs.get('pk2')
         
