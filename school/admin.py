@@ -1,6 +1,14 @@
 from django.contrib import admin
-from .models import School, SchoolClass, SchoolSubject, \
-                    Student, Teacher, PrincipalTeacher, Grade, Post
+from .models import (
+    School,
+    SchoolClass,
+    SchoolSubject,
+    Student,
+    Teacher,
+    PrincipalTeacher,
+    Grade,
+    Post,
+)
 
 
 admin.site.register(School)

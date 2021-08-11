@@ -9,28 +9,45 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('school', '0004_principalteacher'),
+        ("school", "0004_principalteacher"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='student',
-            name='school',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='school.school'),
+            model_name="student",
+            name="school",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="school.school",
+            ),
         ),
         migrations.AlterField(
-            model_name='student',
-            name='school_class',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='school.schoolclass'),
+            model_name="student",
+            name="school_class",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="school.schoolclass",
+            ),
         ),
         migrations.AlterField(
-            model_name='student',
-            name='subject',
-            field=models.ManyToManyField(blank=True, null=True, to='school.SchoolSubject'),
+            model_name="student",
+            name="subject",
+            field=models.ManyToManyField(
+                blank=True, null=True, to="school.SchoolSubject"
+            ),
         ),
         migrations.AlterField(
-            model_name='student',
-            name='user',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="student",
+            name="user",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

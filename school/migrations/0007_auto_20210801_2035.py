@@ -9,22 +9,27 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('school', '0006_auto_20210729_2226'),
+        ("school", "0006_auto_20210729_2226"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='schoolsubject',
-            name='teacher',
+            model_name="schoolsubject",
+            name="teacher",
         ),
         migrations.AddField(
-            model_name='schoolsubject',
-            name='teacher',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="schoolsubject",
+            name="teacher",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='student',
-            name='subject',
-            field=models.ManyToManyField(to='school.SchoolSubject'),
+            model_name="student",
+            name="subject",
+            field=models.ManyToManyField(to="school.SchoolSubject"),
         ),
     ]
