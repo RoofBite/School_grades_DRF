@@ -3,10 +3,7 @@ from .api_views import *
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
-
-
 urlpatterns = [
-    #path("", get_routes, name="get-routes"),
     path("users/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("users/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("schools/", ListSchool.as_view()),

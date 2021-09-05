@@ -556,15 +556,6 @@ class TestStudentGradeInSubject(APITestCase):
         self.assertEqual(result["subject"]["name"], "subject")
 
 
-class TestGetRoutes(APITestCase):
-    url = "/api/"
-
-    def test_get_routes(self):
-        response = self.client.get(reverse("get-routes"))
-        self.assertEqual(reverse("get-routes"), self.url)
-        self.assertEqual(response.status_code, 200)
-
-
 class TestListSchoolClasses(APITestCase):
     pk_url = "1"
     url = f"/api/schools/{pk_url}/classes/"

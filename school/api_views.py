@@ -59,29 +59,6 @@ class PostsPagination(PageNumberPagination):
     max_page_size = 100
 
 
-@api_view(["GET"])
-def get_routes(request):
-
-    routes = [
-        {"POST, OPTIONS": "/api/users/token/"},
-        {"POST, OPTIONS": "/api/users/token/refresh/"},
-        {"GET, HEAD, OPTIONS": "/api/schools"},
-        {"GET, HEAD, OPTIONS": "/api/schools/pk"},
-        {"GET, HEAD, OPTIONS": "/api/schools/pk/teachers"},
-        {"GET, POST, HEAD, OPTIONS": "/api/schools/pk/students"},
-        {"GET, HEAD, OPTIONS": "/api/schools/pk/classes"},
-        {"GET, HEAD, OPTIONS": "/api/subjects/<int:pk1>/students"},
-        {
-            "GET, PUT, PATCH, HEAD, OPTIONS": "/api/subjects/<int:pk1>/students/<int:pk2>/"
-        },
-        {
-            "GET, PUT, POST, HEAD, OPTIONS": "api/subjects/<int:pk1>/students/<int:pk2>/grades/<int:pk3>/"
-        },
-    ]
-
-    return Response(routes)
-
-
 class ListSchool(generics.ListAPIView):
     queryset = School.objects.all().select_related("principalteacher")
     serializer_class = SchoolSerializer
