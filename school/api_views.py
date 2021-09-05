@@ -63,8 +63,8 @@ class PostsPagination(PageNumberPagination):
 def get_routes(request):
 
     routes = [
-        {"POST, OPTIONS": "users/token/"},
-        {"POST, OPTIONS": "users/token/refresh/"},
+        {"POST, OPTIONS": "/api/users/token/"},
+        {"POST, OPTIONS": "/api/users/token/refresh/"},
         {"GET, HEAD, OPTIONS": "/api/schools"},
         {"GET, HEAD, OPTIONS": "/api/schools/pk"},
         {"GET, HEAD, OPTIONS": "/api/schools/pk/teachers"},
@@ -100,7 +100,7 @@ class SchoolPostDetail(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ["PUT", "DELETE", "PATCH"]:
             return [SchoolPostDetailAuthor]
         elif self.request.method in ["GET"]:
-            return [SchoolPostDetailAuthor]
+            return [AllowAny]
         return [NotAllowed]
 
     def error404(request):
