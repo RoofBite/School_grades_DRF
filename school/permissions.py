@@ -106,9 +106,8 @@ class TeacherPermission(permissions.BasePermission):
                 teacher_school_id = user.teacher.school.all().values_list(
                     "id", flat=True
                 )
-            else:
-                teacher_school_id = False
         except:
+            teacher_school_id = False
             print("User is not teacher")
 
         # Grants permission if student and teacher are asigned to the same school
@@ -132,11 +131,10 @@ class PrincipalPermission(permissions.BasePermission):
 
         try:
             if user.principalteacher:
-
                 principal_school_id = user.principalteacher.school.id
-            else:
-                principal_school_id = False
+                
         except:
+            principal_school_id = False
             print("User is not principal")
 
         if principal_school_id == False:
